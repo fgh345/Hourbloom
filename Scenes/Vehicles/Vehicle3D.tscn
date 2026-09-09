@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dqe7jg65s13g7"]
 
-[ext_resource type="Script" uid="uid://d4l841j6216ej" path="res://Scripts/vehicles/Vehicle3D.gd" id="1_vehicle3d_gd"]
-[ext_resource type="Script" uid="uid://s1tveoxm03l6" path="res://addons/gevp/scripts/wheel.gd" id="2_wheel_gd"]
+[ext_resource type="Script" uid="uid://6wyg6bqrkpr" path="res://Scripts/vehicles/Vehicle3D.gd" id="1_vehicle3d_gd"]
+[ext_resource type="Script" uid="uid://drse1g0e2sffx" path="res://addons/gevp/scripts/wheel.gd" id="2_wheel_gd"]
 
 [sub_resource type="Curve" id="Curve_default_torque"]
 _data = [Vector2(0, 0.5), 0.0, 1.0, 0, 0, Vector2(0.8, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.7), -2.0, 0.0, 0, 0]

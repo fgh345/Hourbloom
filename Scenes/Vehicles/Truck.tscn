@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://8s46ope2b1lg"]
 
 [ext_resource type="PackedScene" uid="uid://dqe7jg65s13g7" path="res://Scenes/Vehicles/Vehicle3D.tscn" id="1_vehicle3d_tscn"]
-[ext_resource type="PackedScene" uid="uid://3ceqpxe7d5wf" path="res://Assets/Vehicles/Truck1Assets/Main_tractor.glb" id="3_h343l"]
-[ext_resource type="Script" uid="uid://chwmmagyuxtsq" path="res://Scripts/vehicles/HitchSocket3D.gd" id="4_hitch_script"]
+[ext_resource type="PackedScene" uid="uid://05sqtcqa581x" path="res://Assets/Vehicles/Truck1Assets/Main_tractor.glb" id="3_h343l"]
+[ext_resource type="Script" uid="uid://dikdcv4fp8o88" path="res://Scripts/vehicles/HitchSocket3D.gd" id="4_hitch_script"]
 
 [sub_resource type="Curve" id="Curve_voi7t"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]

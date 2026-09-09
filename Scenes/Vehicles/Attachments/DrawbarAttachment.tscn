@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bgn3j5jathfqj"]
 
-[ext_resource type="Script" uid="uid://c4cgkp0i7nieu" path="res://Scripts/vehicles/Implement3D.gd" id="1_63uoo"]
+[ext_resource type="Script" uid="uid://csmupjfscgcjn" path="res://Scripts/vehicles/Implement3D.gd" id="1_63uoo"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_plow_detection_big"]
 size = Vector3(1.7536621, 2, 1.9746094)

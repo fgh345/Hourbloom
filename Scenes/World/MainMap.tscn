@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://cg2nmbklw327w" path="res://Scenes/Actors/Player.tscn" id="1_player_tscn"]
 [ext_resource type="PackedScene" uid="uid://dxe8q3v5p6wjm" path="res://Scenes/Interactables/Apple.tscn" id="2_apple_tscn"]
 [ext_resource type="PackedScene" uid="uid://b5snt7h5v27g" path="res://Scenes/World/GridManager.tscn" id="3_grid_tscn"]
-[ext_resource type="Script" uid="uid://c2ad2fwjuebs5" path="res://Scripts/debug/DeveloperConsole.gd" id="6_dev_console"]
+[ext_resource type="Script" uid="uid://t3qneo7rv6ym" path="res://Scripts/debug/DeveloperConsole.gd" id="6_dev_console"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)

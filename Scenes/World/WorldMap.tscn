@@ -1,15 +1,15 @@
 [gd_scene format=3 uid="uid://be7mvh7kqvja0"]
 
-[ext_resource type="Script" uid="uid://7saqkj41tt6u" path="res://Scripts/world/MapDefinition.gd" id="1_ymbeh"]
+[ext_resource type="Script" uid="uid://caehfjvoo10uj" path="res://Scripts/world/MapDefinition.gd" id="1_ymbeh"]
 [ext_resource type="Resource" uid="uid://bijkekrlclv3v" path="res://Assets/TerrainAssets/Data/map_info/MapRegionMask_elmcreek.tres" id="2_luyaf"]
 [ext_resource type="PackedScene" uid="uid://b5snt7h5v27g" path="res://Scenes/World/GridManager.tscn" id="3_grid_tscn"]
 [ext_resource type="Terrain3DAssets" uid="uid://0lfg0wvqe47v" path="res://Assets/TerrainAssets/MyTerrainAssets.tres" id="7_k2sq4"]
-[ext_resource type="PackedScene" uid="uid://bu05efayr4rj3" path="res://Assets/TerrainAssets/Data/roads.glb" id="8_e6b1v"]
-[ext_resource type="Texture2D" uid="uid://dobef47is21v" path="res://Assets/TerrainAssets/Data/textures/asphalt_albedo_height.png" id="9_0qwcn"]
-[ext_resource type="Script" uid="uid://bpp0hjyyxr428" path="res://Scripts/farm/SoilLayerService.gd" id="9_soil_service"]
+[ext_resource type="PackedScene" uid="uid://d0ejhn8bk3dxv" path="res://Assets/TerrainAssets/Data/roads.glb" id="8_e6b1v"]
+[ext_resource type="Texture2D" uid="uid://dn6dcqipy52cx" path="res://Assets/TerrainAssets/Data/textures/asphalt_albedo_height.png" id="9_0qwcn"]
+[ext_resource type="Script" uid="uid://cntkhe0r3ntdi" path="res://Scripts/farm/SoilLayerService.gd" id="9_soil_service"]
 
-[ext_resource type="Texture2D" uid="uid://ctpc2r8j1g6xa" path="res://Assets/TerrainAssets/Data/textures/asphalt_normal_roughness.png" id="10_3xaw4"]
-[ext_resource type="Script" uid="uid://dc2qjaxsmp3xv" path="res://Scripts/world/MapSpawnPoint.gd" id="18_u8pi1"]
+[ext_resource type="Texture2D" uid="uid://bnmsme0rjsyt3" path="res://Assets/TerrainAssets/Data/textures/asphalt_normal_roughness.png" id="10_3xaw4"]
+[ext_resource type="Script" uid="uid://ckam8ccjh1ocr" path="res://Scripts/world/MapSpawnPoint.gd" id="18_u8pi1"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)

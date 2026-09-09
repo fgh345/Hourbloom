@@ -47,12 +47,9 @@ addons/**/.build/
 !addons/**/LICENSE*
 
 Assets/*.png
-*.png.import
-# Terrain3D requires every texture array member to share compression and mipmap settings.
-!Assets/TerrainAssets/Data/textures/*.png.import
-*.glb.import
 
-*.uid
+# Track Godot sidecars. They preserve resource identities and import settings
+# across clean clones; generated import artifacts remain under ignored .godot/.
 
 **/exported
 .export-to-txt.*

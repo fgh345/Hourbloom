@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c2jrylig6ynlj"]
 
-[ext_resource type="Script" uid="uid://cuesgw25fq0pv" path="res://Scripts/vehicles/Attachments/PlowAttachment.gd" id="1_plow_gd"]
+[ext_resource type="Script" uid="uid://dm3tk76s52nsf" path="res://Scripts/vehicles/Attachments/PlowAttachment.gd" id="1_plow_gd"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_plow"]
 size = Vector3(6.3775635, 1.2308655, 0.76660156)
