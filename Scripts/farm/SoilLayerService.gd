@@ -77,6 +77,12 @@ func seed_world(world_pos: Vector3) -> bool:
 		return GameManager.session.farm.plant_crop(grid_pos, &"generic", GameManager.session.farm.DEFAULT_CROP_GROWTH_MINUTES, world_pos.y)
 	return false
 
+# Called by HarvestTool.gd. harvest_crop clears the crop, emits tile_updated
+# (which repaints soil and removes the crop node), and returns the yield.
+func harvest_world(world_pos: Vector3) -> Dictionary:
+	var grid_pos := GameManager.session.farm.world_to_grid(world_pos)
+	return GameManager.session.farm.harvest_crop(grid_pos)
+
 func _on_tile_updated(grid_pos: Vector2i, new_state: int) -> void:
 	if not _runtime_paint_ready:
 		return

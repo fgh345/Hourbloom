@@ -77,6 +77,7 @@ func _ready() -> void:
 
 	_tool_inventory.add_tool(preload("res://Scripts/farm/tools/HoeTool.gd").new())
 	_tool_inventory.add_tool(preload("res://Scripts/farm/tools/SeedTool.gd").new())
+	_tool_inventory.add_tool(preload("res://Scripts/farm/tools/HarvestTool.gd").new())
 	_tool_inventory.equip_slot(1)
 
 	_interaction_controller = preload("res://Scripts/player/PlayerInteractionController.gd").new(camera)
@@ -115,6 +116,9 @@ func _input(event: InputEvent) -> void:
 				_refresh_tool_ui()
 		elif event.physical_keycode == KEY_2 and event.is_pressed() and not event.is_echo():
 			if _tool_inventory.equip_slot(2):
+				_refresh_tool_ui()
+		elif event.physical_keycode == KEY_3 and event.is_pressed() and not event.is_echo():
+			if _tool_inventory.equip_slot(3):
 				_refresh_tool_ui()
 			
 		# Interact

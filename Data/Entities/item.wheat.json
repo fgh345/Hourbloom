@@ -1,0 +1,15 @@
+{
+	"id": "item.wheat",
+	"components": {
+		"transform": {},
+		"item": {
+			"mass_kg": 0.5,
+			"volume_liters": 0.8,
+			"display_name": "小麦"
+		},
+		"stackable": {
+			"count": 1,
+			"max_stack": 64
+		}
+	}
+}

@@ -110,5 +110,7 @@ func _get_display_item_name() -> String:
 	match str(entity_data.definition_id):
 		"item.apple", "item.test_apple":
 			return "苹果"
+		"item.wheat":
+			return "小麦"
 		_:
 			return str(entity_data.definition_id)

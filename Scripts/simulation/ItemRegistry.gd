@@ -14,6 +14,12 @@ func _ready() -> void:
 	apple.base_volume = 0.2
 	apple.world_scene = preload("res://Scenes/Interactables/Apple.tscn")
 	register_item(apple)
+
+	var wheat := ItemDefinition.new()
+	wheat.id = &"item.wheat"
+	wheat.base_mass = 0.5
+	wheat.base_volume = 0.8
+	register_item(wheat)
 	
 	# Register commodities
 	var diesel := CommodityDefinition.new()

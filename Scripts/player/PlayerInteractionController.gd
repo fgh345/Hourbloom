@@ -62,7 +62,19 @@ func process_hover(player: CharacterBody3D) -> void:
 			prompt = obj.get_interaction_prompt()
 		EventBus.update_crosshair_prompt.emit(prompt)
 	else:
-		EventBus.update_crosshair_prompt.emit("")
+		# 地形等无交互碰撞体：若脚下是成熟作物，提示可收获。
+		EventBus.update_crosshair_prompt.emit(_get_farm_tile_prompt(hit.get("position", Vector3.ZERO)))
+
+## 成熟作物准星提示。CropNode 自身无碰撞体，射线只会打中地形，
+## 因此按命中点反查农田网格状态。
+func _get_farm_tile_prompt(hit_pos: Vector3) -> String:
+	if GameManager.session == null or GameManager.session.farm == null:
+		return ""
+	var farm := GameManager.session.farm
+	var tile_data: FarmTileData = farm.get_tile_data(farm.world_to_grid(hit_pos))
+	if tile_data != null and tile_data.state == FarmData.SoilState.HARVESTABLE:
+		return "收获小麦 [鼠标左键 / 3]"
+	return ""
 
 func try_use_tool(player: CharacterBody3D, tool: Tool) -> bool:
 	if tool == null:
