@@ -21,49 +21,65 @@ terrain_path = NodePath("../../Terrain3D")
 [node name="FenceLine" type="Node3D" parent="."]
 
 [node name="FenceA" parent="FenceLine" instance=ExtResource("2_fence")]
-position = Vector3(-10, 0, -4)
+position = Vector3(-7, 0, -5)
 
 [node name="FenceB" parent="FenceLine" instance=ExtResource("2_fence")]
-position = Vector3(-6.5, 0, -4)
+position = Vector3(-3.5, 0, -5)
 
 [node name="FenceC" parent="FenceLine" instance=ExtResource("2_fence")]
-position = Vector3(-3, 0, -4)
+position = Vector3(0, 0, -5)
 
 [node name="Gate" parent="FenceLine" instance=ExtResource("3_gate")]
-position = Vector3(1, 0, -4)
+position = Vector3(3.5, 0, -5)
 
 [node name="Sign" parent="." instance=ExtResource("4_sign")]
-position = Vector3(3.8, 0, -4)
+position = Vector3(5.5, 0, -5)
+
+[node name="LeftFenceA" parent="FenceLine" instance=ExtResource("2_fence")]
+position = Vector3(-8.75, 0, -1.5)
+rotation = Vector3(0, 1.5708, 0)
+
+[node name="LeftFenceB" parent="FenceLine" instance=ExtResource("2_fence")]
+position = Vector3(-8.75, 0, 2)
+rotation = Vector3(0, 1.5708, 0)
+
+[node name="RightFenceA" parent="FenceLine" instance=ExtResource("2_fence")]
+position = Vector3(5.25, 0, -1.5)
+rotation = Vector3(0, 1.5708, 0)
+
+[node name="RightFenceB" parent="FenceLine" instance=ExtResource("2_fence")]
+position = Vector3(5.25, 0, 2)
+rotation = Vector3(0, 1.5708, 0)
 
 [node name="EdgePlants" type="Node3D" parent="."]
 
 [node name="BushA" parent="EdgePlants" instance=ExtResource("5_bush")]
-position = Vector3(6.5, 0, -4)
+position = Vector3(7.5, 0, -3.5)
 
 [node name="BushB" parent="EdgePlants" instance=ExtResource("5_bush")]
-position = Vector3(8.5, 0, -4.5)
+position = Vector3(8.5, 0, 0)
 scale = Vector3(0.85, 0.85, 0.85)
 
 [node name="GrassA" parent="EdgePlants" instance=ExtResource("6_grass")]
-position = Vector3(10, 0, -3.5)
+position = Vector3(7.5, 0, 3.5)
 
 [node name="FlowerA" parent="EdgePlants" instance=ExtResource("7_flower")]
-position = Vector3(11.5, 0, -3.8)
+position = Vector3(9, 0, 3.8)
 
 [node name="StoneA" parent="EdgePlants" instance=ExtResource("8_stone")]
-position = Vector3(13, 0, -3.5)
+position = Vector3(10.5, 0, 3.5)
 rotation = Vector3(0, 0.7, 0)
 
 [node name="Camp" type="Node3D" parent="."]
 
 [node name="Tent" parent="Camp" instance=ExtResource("9_tent")]
-position = Vector3(-8, 0, 1.5)
+position = Vector3(-5, 0, 1)
 
 [node name="Campfire" parent="Camp" instance=ExtResource("10_fire")]
-position = Vector3(-3, 0, 1.5)
+position = Vector3(-1.5, 0, 1)
 
 [node name="Logs" parent="Camp" instance=ExtResource("11_logs")]
-position = Vector3(0, 0, 1.5)
+position = Vector3(1, 0, 1.5)
 
 [node name="Pot" parent="Camp" instance=ExtResource("12_pot")]
-position = Vector3(2, 0, 1.5)
+position = Vector3(2.5, 0, 2.5)
