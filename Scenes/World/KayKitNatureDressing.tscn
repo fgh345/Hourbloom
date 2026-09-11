@@ -1,0 +1,108 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/world/TerrainDressing.gd" id="9_terrain_dressing"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/KayKit/ForestNaturePack/gltf/Tree_1_A_Color1.gltf" id="1_tree_1"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/KayKit/ForestNaturePack/gltf/Tree_2_C_Color1.gltf" id="2_tree_2"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/KayKit/ForestNaturePack/gltf/Bush_1_A_Color1.gltf" id="3_bush_1"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/KayKit/ForestNaturePack/gltf/Bush_2_D_Color1.gltf" id="4_bush_2"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/KayKit/ForestNaturePack/gltf/Rock_1_A_Color1.gltf" id="5_rock_1"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/KayKit/ForestNaturePack/gltf/Rock_2_E_Color1.gltf" id="6_rock_2"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/KayKit/ForestNaturePack/gltf/Grass_1_A_Color1.gltf" id="7_grass_1"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/KayKit/ForestNaturePack/gltf/Grass_2_C_Color1.gltf" id="8_grass_2"]
+
+[node name="KayKitNatureDressing" type="Node3D"]
+script = ExtResource("9_terrain_dressing")
+ground_offset = 0.03
+
+[node name="Trees" type="Node3D" parent="."]
+
+[node name="TreeNorthWest" parent="Trees" instance=ExtResource("1_tree_1")]
+position = Vector3(-18, 0, -13)
+rotation = Vector3(0, 0.35, 0)
+scale = Vector3(1.25, 1.25, 1.25)
+
+[node name="TreeNorth" parent="Trees" instance=ExtResource("2_tree_2")]
+position = Vector3(-7, 0, -19)
+rotation = Vector3(0, -0.5, 0)
+scale = Vector3(1.05, 1.05, 1.05)
+
+[node name="TreeNorthEast" parent="Trees" instance=ExtResource("1_tree_1")]
+position = Vector3(11, 0, -17)
+rotation = Vector3(0, 1.15, 0)
+scale = Vector3(1.4, 1.4, 1.4)
+
+[node name="TreeEast" parent="Trees" instance=ExtResource("2_tree_2")]
+position = Vector3(19, 0, -4)
+rotation = Vector3(0, 2.3, 0)
+scale = Vector3(0.95, 0.95, 0.95)
+
+[node name="TreeSouthEast" parent="Trees" instance=ExtResource("1_tree_1")]
+position = Vector3(16, 0, 14)
+rotation = Vector3(0, -1.1, 0)
+scale = Vector3(1.15, 1.15, 1.15)
+
+[node name="Bushes" type="Node3D" parent="."]
+
+[node name="BushNorthWest" parent="Bushes" instance=ExtResource("3_bush_1")]
+position = Vector3(-16, 0, -9)
+scale = Vector3(2.4, 2.4, 2.4)
+
+[node name="BushNorth" parent="Bushes" instance=ExtResource("4_bush_2")]
+position = Vector3(-4, 0, -15)
+scale = Vector3(2.1, 2.1, 2.1)
+
+[node name="BushNorthEast" parent="Bushes" instance=ExtResource("3_bush_1")]
+position = Vector3(9, 0, -14)
+scale = Vector3(2.8, 2.8, 2.8)
+
+[node name="BushEast" parent="Bushes" instance=ExtResource("4_bush_2")]
+position = Vector3(15, 0, -1)
+scale = Vector3(2.2, 2.2, 2.2)
+
+[node name="BushSouthEast" parent="Bushes" instance=ExtResource("3_bush_1")]
+position = Vector3(13, 0, 11)
+scale = Vector3(2.5, 2.5, 2.5)
+
+[node name="Rocks" type="Node3D" parent="."]
+
+[node name="RockNorthWest" parent="Rocks" instance=ExtResource("5_rock_1")]
+position = Vector3(-13, 0, -10)
+rotation = Vector3(0, 0.6, 0)
+scale = Vector3(2.0, 2.0, 2.0)
+
+[node name="RockNorthEast" parent="Rocks" instance=ExtResource("6_rock_2")]
+position = Vector3(7, 0, -12)
+rotation = Vector3(0, -0.8, 0)
+scale = Vector3(1.7, 1.7, 1.7)
+
+[node name="RockEast" parent="Rocks" instance=ExtResource("5_rock_1")]
+position = Vector3(17, 0, 4)
+rotation = Vector3(0, 1.7, 0)
+scale = Vector3(2.4, 2.4, 2.4)
+
+[node name="RockSouthEast" parent="Rocks" instance=ExtResource("6_rock_2")]
+position = Vector3(11, 0, 13)
+rotation = Vector3(0, 2.2, 0)
+scale = Vector3(1.9, 1.9, 1.9)
+
+[node name="Grass" type="Node3D" parent="."]
+
+[node name="GrassNorthWest" parent="Grass" instance=ExtResource("7_grass_1")]
+position = Vector3(-11, 0, -7)
+scale = Vector3(1.8, 1.8, 1.8)
+
+[node name="GrassNorth" parent="Grass" instance=ExtResource("8_grass_2")]
+position = Vector3(-1, 0, -11)
+scale = Vector3(1.6, 1.6, 1.6)
+
+[node name="GrassNorthEast" parent="Grass" instance=ExtResource("7_grass_1")]
+position = Vector3(11, 0, -9)
+scale = Vector3(2.0, 2.0, 2.0)
+
+[node name="GrassEast" parent="Grass" instance=ExtResource("8_grass_2")]
+position = Vector3(14, 0, 2)
+scale = Vector3(1.7, 1.7, 1.7)
+
+[node name="GrassSouthEast" parent="Grass" instance=ExtResource("7_grass_1")]
+position = Vector3(9, 0, 10)
+scale = Vector3(1.9, 1.9, 1.9)

@@ -99,7 +99,7 @@ func _draw_grid(center_chunk: Vector2i, ground_y: float) -> void:
 					
 					var surface_y := draw_y
 					if use_dynamic_height and terrain_data != null and terrain_data.has_method("get_height"):
-						surface_y = terrain_data.get_height(Vector2(world_x + 0.5, world_z + 0.5)) + y_offset
+						surface_y = terrain_data.get_height(Vector3(world_x + 0.5, 0.0, world_z + 0.5)) + y_offset
 
 					# Check validity using FarmData (which wraps MapRegionMask)
 					var is_farmable: bool = GameManager.session.farm.can_plow_at(check_pos)
