@@ -6,6 +6,7 @@
 size = Vector3(1, 0.35, 0.08)
 
 [node name="KenneyFenceSimple" type="Node3D"]
+scale = Vector3(3.5, 3.5, 3.5)
 metadata/terrain_dressing_prop = true
 
 [node name="Visual" parent="." instance=ExtResource("1_visual")]
