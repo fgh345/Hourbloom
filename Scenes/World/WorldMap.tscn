@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://bnmsme0rjsyt3" path="res://Assets/TerrainAssets/Data/textures/asphalt_normal_roughness.png" id="10_3xaw4"]
 [ext_resource type="Script" uid="uid://ckam8ccjh1ocr" path="res://Scripts/world/MapSpawnPoint.gd" id="18_u8pi1"]
 [ext_resource type="PackedScene" path="res://Scenes/World/KayKitNatureDressing.tscn" id="19_kaykit"]
+[ext_resource type="PackedScene" path="res://Scenes/World/KenneyNatureSample.tscn" id="20_kenney_sample"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -97,6 +98,11 @@ environment = SubResource("Environment_main")
 
 [node name="KayKitNatureDressing" parent="Flora_Node" instance=ExtResource("19_kaykit")]
 position = Vector3(105.462, 29.956, 135.366)
+
+[node name="EnvironmentDressing" type="Node3D" parent="."]
+
+[node name="KenneyNatureSample" parent="EnvironmentDressing" instance=ExtResource("20_kenney_sample")]
+position = Vector3(135.462, 29.956, 135.366)
 
 [node name="Buildings_Node" type="Node3D" parent="." unique_id=363595167]
 

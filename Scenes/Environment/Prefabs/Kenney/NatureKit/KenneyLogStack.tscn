@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/log_stack.glb" id="1_visual"]
+
+[node name="KenneyLogStack" type="Node3D"]
+metadata/terrain_dressing_prop = true
+
+[node name="Visual" parent="." instance=ExtResource("1_visual")]

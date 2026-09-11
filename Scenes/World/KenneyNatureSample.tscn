@@ -1,0 +1,70 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/world/TerrainDressing.gd" id="1_dressing"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneyFenceSimple.tscn" id="2_fence"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneyFenceGate.tscn" id="3_gate"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneySign.tscn" id="4_sign"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneyBushSmall.tscn" id="5_bush"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneyGrass.tscn" id="6_grass"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneyFlowerYellow.tscn" id="7_flower"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneyStoneSmall.tscn" id="8_stone"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneyTentSmallOpen.tscn" id="9_tent"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneyCampfireLogs.tscn" id="10_fire"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneyLogStack.tscn" id="11_logs"]
+[ext_resource type="PackedScene" path="res://Scenes/Environment/Prefabs/Kenney/NatureKit/KenneyPotSmall.tscn" id="12_pot"]
+
+[node name="KenneyNatureSample" type="Node3D"]
+script = ExtResource("1_dressing")
+ground_offset = 0.02
+terrain_path = NodePath("../../Terrain3D")
+
+[node name="FenceLine" type="Node3D" parent="."]
+
+[node name="FenceA" parent="FenceLine" instance=ExtResource("2_fence")]
+position = Vector3(-5, 0, -4)
+
+[node name="FenceB" parent="FenceLine" instance=ExtResource("2_fence")]
+position = Vector3(-4, 0, -4)
+
+[node name="FenceC" parent="FenceLine" instance=ExtResource("2_fence")]
+position = Vector3(-3, 0, -4)
+
+[node name="Gate" parent="FenceLine" instance=ExtResource("3_gate")]
+position = Vector3(-1.8, 0, -4)
+
+[node name="Sign" parent="." instance=ExtResource("4_sign")]
+position = Vector3(-0.5, 0, -4)
+
+[node name="EdgePlants" type="Node3D" parent="."]
+
+[node name="BushA" parent="EdgePlants" instance=ExtResource("5_bush")]
+position = Vector3(1.5, 0, -4)
+scale = Vector3(1.25, 1.25, 1.25)
+
+[node name="BushB" parent="EdgePlants" instance=ExtResource("5_bush")]
+position = Vector3(3, 0, -4.5)
+scale = Vector3(0.9, 0.9, 0.9)
+
+[node name="GrassA" parent="EdgePlants" instance=ExtResource("6_grass")]
+position = Vector3(4.5, 0, -3.5)
+
+[node name="FlowerA" parent="EdgePlants" instance=ExtResource("7_flower")]
+position = Vector3(5.5, 0, -3.8)
+
+[node name="StoneA" parent="EdgePlants" instance=ExtResource("8_stone")]
+position = Vector3(6.5, 0, -3.5)
+rotation = Vector3(0, 0.7, 0)
+
+[node name="Camp" type="Node3D" parent="."]
+
+[node name="Tent" parent="Camp" instance=ExtResource("9_tent")]
+position = Vector3(-4, 0, 1.5)
+
+[node name="Campfire" parent="Camp" instance=ExtResource("10_fire")]
+position = Vector3(-1.8, 0, 1.5)
+
+[node name="Logs" parent="Camp" instance=ExtResource("11_logs")]
+position = Vector3(0.2, 0, 1.5)
+
+[node name="Pot" parent="Camp" instance=ExtResource("12_pot")]
+position = Vector3(2, 0, 1.5)

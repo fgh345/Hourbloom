@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/tent_smallOpen.glb" id="1_visual"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tent"]
+size = Vector3(0.9, 0.7, 0.9)
+
+[node name="KenneyTentSmallOpen" type="Node3D"]
+metadata/terrain_dressing_prop = true
+
+[node name="Visual" parent="." instance=ExtResource("1_visual")]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+position = Vector3(0, 0.35, 0)
+shape = SubResource("BoxShape3D_tent")
