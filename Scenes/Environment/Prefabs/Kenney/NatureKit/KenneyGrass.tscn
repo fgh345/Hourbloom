@@ -1,9 +1,11 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/grass.glb" id="1_visual"]
+[ext_resource type="Script" path="res://Scripts/world/KenneyMaterialCalibration.gd" id="2_material"]
 
 [node name="KenneyGrass" type="Node3D"]
 scale = Vector3(2.5, 2.5, 2.5)
+script = ExtResource("2_material")
 metadata/terrain_dressing_prop = true
 
 [node name="Visual" parent="." instance=ExtResource("1_visual")]

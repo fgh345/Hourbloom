@@ -1,12 +1,14 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/sign.glb" id="1_visual"]
+[ext_resource type="Script" path="res://Scripts/world/KenneyMaterialCalibration.gd" id="2_material"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_sign"]
 size = Vector3(0.18, 0.42, 0.18)
 
 [node name="KenneySign" type="Node3D"]
 scale = Vector3(3.5, 3.5, 3.5)
+script = ExtResource("2_material")
 metadata/terrain_dressing_prop = true
 
 [node name="Visual" parent="." instance=ExtResource("1_visual")]
