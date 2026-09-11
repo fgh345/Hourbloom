@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/fence_simple.glb" id="1_fence"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/fence_gate.glb" id="2_gate"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/sign.glb" id="3_sign"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/grass.glb" id="4_grass"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/plant_bushSmall.glb" id="5_bush"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/stone_smallFlatA.glb" id="6_stone"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/flower_yellowA.glb" id="7_flower"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/tent_smallOpen.glb" id="8_tent"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/campfire_logs.glb" id="9_fire"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/log_stack.glb" id="10_logs"]
+[ext_resource type="PackedScene" path="res://Assets/Environment/Kenney/NatureKit/glb/pot_small.glb" id="11_pot"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+size = Vector3(12, 0.1, 8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ground"]
+albedo_color = Color(0.28, 0.22, 0.15, 1)
+roughness = 1.0
+
+[node name="KenneyNatureCalibration" type="Node3D"]
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.05, 0)
+mesh = SubResource("BoxMesh_ground")
+material_override = SubResource("StandardMaterial3D_ground")
+
+[node name="FenceSimple" parent="." instance=ExtResource("1_fence")]
+position = Vector3(-5, 0, -2)
+
+[node name="FenceGate" parent="." instance=ExtResource("2_gate")]
+position = Vector3(-3.5, 0, -2)
+
+[node name="Sign" parent="." instance=ExtResource("3_sign")]
+position = Vector3(-2, 0, -2)
+
+[node name="Grass" parent="." instance=ExtResource("4_grass")]
+position = Vector3(0, 0, -2)
+
+[node name="BushSmall" parent="." instance=ExtResource("5_bush")]
+position = Vector3(1.5, 0, -2)
+
+[node name="StoneSmallFlat" parent="." instance=ExtResource("6_stone")]
+position = Vector3(3, 0, -2)
+
+[node name="FlowerYellow" parent="." instance=ExtResource("7_flower")]
+position = Vector3(4.2, 0, -2)
+
+[node name="TentSmallOpen" parent="." instance=ExtResource("8_tent")]
+position = Vector3(-3.8, 0, 1.2)
+
+[node name="CampfireLogs" parent="." instance=ExtResource("9_fire")]
+position = Vector3(-1.6, 0, 1.2)
+
+[node name="LogStack" parent="." instance=ExtResource("10_logs")]
+position = Vector3(0.2, 0, 1.2)
+
+[node name="PotSmall" parent="." instance=ExtResource("11_pot")]
+position = Vector3(1.8, 0, 1.2)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, -25, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(0, 7, 11)
+rotation_degrees = Vector3(-25, 0, 0)
+current = true

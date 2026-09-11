@@ -8,8 +8,11 @@ class_name TerrainDressing
 
 @export var ground_offset: float = 0.02
 @export var snap_on_ready: bool = true
+@export var terrain_path: NodePath
+@export_range(1, 120, 1) var max_snap_attempts: int = 30
 
 var _snapped := false
+var _snap_attempts := 0
 
 func _ready() -> void:
 	if snap_on_ready:
@@ -18,7 +21,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	# In the editor and during startup, Terrain3D may register/load one frame
 	# after this scene. Retry until the height data becomes available.
-	if snap_on_ready and not _snapped:
+	if snap_on_ready and not _snapped and _snap_attempts < max_snap_attempts:
 		_snap_all_to_terrain()
 
 func _snap_all_to_terrain() -> void:
@@ -33,20 +36,31 @@ func _snap_all_to_terrain() -> void:
 	if terrain_data == null or not terrain_data.has_method("get_height"):
 		return
 
+	_snap_attempts += 1
+	var totals := Vector2i.ZERO
 	for child in get_children():
-		_snap_node_tree(child, terrain_data)
+		totals += _snap_node_tree(child, terrain_data)
 
-	_snapped = true
+	# A completed traversal is not the same as a successful snap. Keep retrying
+	# while Terrain3D is still loading, but stop after a bounded number of tries
+	# so a malformed asset cannot cause an endless editor loop.
+	if totals.x == 0 or totals.x == totals.y:
+		_snapped = true
+	elif _snap_attempts >= max_snap_attempts:
+		push_warning("TerrainDressing: %d/%d props could not be grounded after %d attempts." % [totals.y, totals.x, _snap_attempts])
 
-func _snap_node_tree(node: Node, terrain_data: Object) -> void:
+func _snap_node_tree(node: Node, terrain_data: Object) -> Vector2i:
 	if node is Node3D and _is_prop_root(node):
-		_snap_prop(node as Node3D, terrain_data)
-		return
+		return Vector2i(1, 1 if _snap_prop(node as Node3D, terrain_data) else 0)
 
+	var totals := Vector2i.ZERO
 	for child in node.get_children():
-		_snap_node_tree(child, terrain_data)
+		totals += _snap_node_tree(child, terrain_data)
+	return totals
 
 func _is_prop_root(node: Node) -> bool:
+	if node.has_meta("terrain_dressing_prop"):
+		return bool(node.get_meta("terrain_dressing_prop"))
 	if node is MeshInstance3D:
 		return true
 	if not _contains_mesh(node):
@@ -59,16 +73,17 @@ func _is_prop_root(node: Node) -> bool:
 			return false
 	return true
 
-func _snap_prop(prop: Node3D, terrain_data: Object) -> void:
+func _snap_prop(prop: Node3D, terrain_data: Object) -> bool:
 	var surface_y := float(terrain_data.get_height(Vector3(prop.global_position.x, 0.0, prop.global_position.z)))
 	if is_nan(surface_y) or is_inf(surface_y):
-		return
+		return false
 
 	var lowest_world_y := _get_lowest_world_y(prop)
 	if is_inf(lowest_world_y):
-		return
+		return false
 
 	prop.global_position.y += surface_y + ground_offset - lowest_world_y
+	return true
 
 func _contains_mesh(node: Node) -> bool:
 	if node is MeshInstance3D:
@@ -106,6 +121,11 @@ func _collect_meshes(node: Node, meshes: Array[Node]) -> void:
 		_collect_meshes(child, meshes)
 
 func _find_terrain() -> Node:
+	if not terrain_path.is_empty():
+		var explicit_terrain := get_node_or_null(terrain_path)
+		if explicit_terrain != null:
+			return explicit_terrain
+
 	var terrain := get_tree().get_first_node_in_group("terrain_node")
 	if terrain != null:
 		return terrain
