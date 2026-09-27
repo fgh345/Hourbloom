@@ -1,0 +1,361 @@
+{
+  "max_ankle_error": 1.3493575361575808e-07,
+  "nominal_forward_speed": 0.7586206896551725,
+  "samples": [
+    {
+      "frame": 1,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 7.300048299977713e-08,
+      "ankle_z": 0.22000005841255188
+    },
+    {
+      "frame": 1,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 2.9802322387695312e-08,
+      "ankle_z": 0.21999996900558472
+    },
+    {
+      "frame": 2,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 6.828569911354542e-08,
+      "ankle_z": 0.21999993920326233
+    },
+    {
+      "frame": 2,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 1.4901161193847656e-08,
+      "ankle_z": 0.2199999988079071
+    },
+    {
+      "frame": 3,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 4.2146848510894035e-08,
+      "ankle_z": 0.2200000286102295
+    },
+    {
+      "frame": 3,
+      "leg": "R",
+      "stance": false,
+      "ankle_error": 4.470348358154297e-08,
+      "ankle_z": 0.22249311208724976
+    },
+    {
+      "frame": 4,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 9.424321830774485e-08,
+      "ankle_z": 0.22000008821487427
+    },
+    {
+      "frame": 4,
+      "leg": "R",
+      "stance": false,
+      "ankle_error": 8.429369702178807e-08,
+      "ankle_z": 0.2530279755592346
+    },
+    {
+      "frame": 5,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 9.541398640621973e-08,
+      "ankle_z": 0.22000008821487427
+    },
+    {
+      "frame": 5,
+      "leg": "R",
+      "stance": false,
+      "ankle_error": 6.143906154658885e-08,
+      "ankle_z": 0.2803804576396942
+    },
+    {
+      "frame": 6,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 2.9802322387695312e-08,
+      "ankle_z": 0.2199999988079071
+    },
+    {
+      "frame": 6,
+      "leg": "R",
+      "stance": false,
+      "ankle_error": 5.1619136559035694e-08,
+      "ankle_z": 0.30191516876220703
+    },
+    {
+      "frame": 7,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 4.4117567249860653e-08,
+      "ankle_z": 0.2200000286102295
+    },
+    {
+      "frame": 7,
+      "leg": "R",
+      "stance": false,
+      "ankle_error": 3.0719530773294423e-08,
+      "ankle_z": 0.3155572712421417
+    },
+    {
+      "frame": 8,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 4.23663811184872e-08,
+      "ankle_z": 0.21999996900558472
+    },
+    {
+      "frame": 8,
+      "leg": "R",
+      "stance": false,
+      "ankle_error": 4.470894021672735e-08,
+      "ankle_z": 0.31999221444129944
+    },
+    {
+      "frame": 9,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 4.7706993203109864e-08,
+      "ankle_z": 0.2200000286102295
+    },
+    {
+      "frame": 9,
+      "leg": "R",
+      "stance": false,
+      "ankle_error": 1.3493575361575808e-07,
+      "ankle_z": 0.31479284167289734
+    },
+    {
+      "frame": 10,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 4.2146848510894035e-08,
+      "ankle_z": 0.2200000286102295
+    },
+    {
+      "frame": 10,
+      "leg": "R",
+      "stance": false,
+      "ankle_error": 4.470348358154297e-08,
+      "ankle_z": 0.30045977234840393
+    },
+    {
+      "frame": 11,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 3.332000937312528e-08,
+      "ankle_z": 0.2199999988079071
+    },
+    {
+      "frame": 11,
+      "leg": "R",
+      "stance": false,
+      "ankle_error": 6.143906154658885e-08,
+      "ankle_z": 0.2783743739128113
+    },
+    {
+      "frame": 12,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 3.332000937312528e-08,
+      "ankle_z": 0.2200000286102295
+    },
+    {
+      "frame": 12,
+      "leg": "R",
+      "stance": false,
+      "ankle_error": 5.3726900748371916e-08,
+      "ankle_z": 0.25066444277763367
+    },
+    {
+      "frame": 13,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 2.9802322387695312e-08,
+      "ankle_z": 0.21999996900558472
+    },
+    {
+      "frame": 13,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 7.300048299977713e-08,
+      "ankle_z": 0.22000005841255188
+    },
+    {
+      "frame": 14,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 1.4901161193847656e-08,
+      "ankle_z": 0.2199999988079071
+    },
+    {
+      "frame": 14,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 6.828569911354542e-08,
+      "ankle_z": 0.21999993920326233
+    },
+    {
+      "frame": 15,
+      "leg": "L",
+      "stance": false,
+      "ankle_error": 4.470348358154297e-08,
+      "ankle_z": 0.22249311208724976
+    },
+    {
+      "frame": 15,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 4.2146848510894035e-08,
+      "ankle_z": 0.2200000286102295
+    },
+    {
+      "frame": 16,
+      "leg": "L",
+      "stance": false,
+      "ankle_error": 8.429369702178807e-08,
+      "ankle_z": 0.2530279755592346
+    },
+    {
+      "frame": 16,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 9.424321830774485e-08,
+      "ankle_z": 0.22000008821487427
+    },
+    {
+      "frame": 17,
+      "leg": "L",
+      "stance": false,
+      "ankle_error": 6.143906154658885e-08,
+      "ankle_z": 0.2803804576396942
+    },
+    {
+      "frame": 17,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 9.541398640621973e-08,
+      "ankle_z": 0.22000008821487427
+    },
+    {
+      "frame": 18,
+      "leg": "L",
+      "stance": false,
+      "ankle_error": 5.1619136559035694e-08,
+      "ankle_z": 0.30191516876220703
+    },
+    {
+      "frame": 18,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 2.9802322387695312e-08,
+      "ankle_z": 0.2199999988079071
+    },
+    {
+      "frame": 19,
+      "leg": "L",
+      "stance": false,
+      "ankle_error": 3.0719530773294423e-08,
+      "ankle_z": 0.3155572712421417
+    },
+    {
+      "frame": 19,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 4.4117567249860653e-08,
+      "ankle_z": 0.2200000286102295
+    },
+    {
+      "frame": 20,
+      "leg": "L",
+      "stance": false,
+      "ankle_error": 4.470894021672735e-08,
+      "ankle_z": 0.31999221444129944
+    },
+    {
+      "frame": 20,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 4.23663811184872e-08,
+      "ankle_z": 0.21999996900558472
+    },
+    {
+      "frame": 21,
+      "leg": "L",
+      "stance": false,
+      "ankle_error": 1.3493575361575808e-07,
+      "ankle_z": 0.31479284167289734
+    },
+    {
+      "frame": 21,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 4.7706993203109864e-08,
+      "ankle_z": 0.2200000286102295
+    },
+    {
+      "frame": 22,
+      "leg": "L",
+      "stance": false,
+      "ankle_error": 4.470348358154297e-08,
+      "ankle_z": 0.30045977234840393
+    },
+    {
+      "frame": 22,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 4.2146848510894035e-08,
+      "ankle_z": 0.2200000286102295
+    },
+    {
+      "frame": 23,
+      "leg": "L",
+      "stance": false,
+      "ankle_error": 6.143906154658885e-08,
+      "ankle_z": 0.2783743739128113
+    },
+    {
+      "frame": 23,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 3.332000937312528e-08,
+      "ankle_z": 0.2199999988079071
+    },
+    {
+      "frame": 24,
+      "leg": "L",
+      "stance": false,
+      "ankle_error": 5.3726900748371916e-08,
+      "ankle_z": 0.25066444277763367
+    },
+    {
+      "frame": 24,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 3.332000937312528e-08,
+      "ankle_z": 0.2200000286102295
+    },
+    {
+      "frame": 25,
+      "leg": "L",
+      "stance": true,
+      "ankle_error": 7.300048299977713e-08,
+      "ankle_z": 0.22000005841255188
+    },
+    {
+      "frame": 25,
+      "leg": "R",
+      "stance": true,
+      "ankle_error": 2.9802322387695312e-08,
+      "ankle_z": 0.21999996900558472
+    }
+  ],
+  "reimported_glb": {
+    "maximum_stance_sole_error": 2.585928887128934e-07,
+    "minimum_sole_height": 0.0004997414071112871,
+    "frames_checked": 25
+  }
+}

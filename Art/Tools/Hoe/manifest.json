@@ -1,0 +1,751 @@
+{
+  "source_character": "Art/Characters/ForestGirl/runtime.blend",
+  "swing_plane": "reference_with_short_recovery",
+  "hat_clearance_required": false,
+  "raise_angle_radians": 2.65,
+  "impact_angle_radians": 1.1,
+  "strike_arc_degrees": 88.80845824527759,
+  "time_scale": 0.5217391304347826,
+  "author_duration_seconds": 1.15,
+  "raised_hold_seconds": [
+    0.2608695652173913,
+    0.29739130434782607
+  ],
+  "downstroke_duration_seconds": 0.14608695652173914,
+  "reference_phase_times": {
+    "ready": 0.052173913043478265,
+    "anticipation": 0.2791304347826087,
+    "swing": 0.3808695652173913,
+    "impact": 0.4434782608695652,
+    "follow_through": 0.5321739130434783,
+    "recovered": 0.6
+  },
+  "arm_geometry": {
+    "arm_length_scale": 1.4,
+    "continuous_arm_meshes": [
+      "HoeArm_L_Continuous",
+      "HoeArm_R_Continuous"
+    ],
+    "arm_segment_total_length_m": {
+      "L": 0.30550460162242743,
+      "R": 0.3055045619089114
+    },
+    "elbow_shared_ring_vertices": 10,
+    "wrist_shared_ring_vertices": 10
+  },
+  "head_down_pitch_radians": {
+    "ready": 0.035,
+    "impact": 0.2
+  },
+  "character_height_m": 1.2,
+  "tool_total_length_m": 0.8494999930262566,
+  "tool_blade_width_m": 0.192,
+  "fps": 240,
+  "clips": [
+    {
+      "name": "Hoe",
+      "duration": 0.6,
+      "loop": false
+    },
+    {
+      "name": "HoeIdle",
+      "duration": 1.0,
+      "loop": true
+    }
+  ],
+  "impact_time": 0.4434782608695652,
+  "contact_sampling_advance_seconds": 0.0018115942028985588,
+  "impact_position_blender": [
+    0.014999999664723873,
+    -0.8690530061721802,
+    1.1175870895385742e-08
+  ],
+  "impact_position_godot": [
+    0.014999999664723873,
+    1.1175870895385742e-08,
+    0.8690530061721802
+  ],
+  "impact_socket_position_godot": [
+    0.014999999664723873,
+    0.17327184975147247,
+    0.8416693210601807
+  ],
+  "impact_socket_to_cutting_edge_godot": [
+    0.0,
+    -0.17327183485031128,
+    0.02738368511199951
+  ],
+  "impact_cut_direction_godot": [
+    0.0,
+    -0.9877410531044006,
+    0.15610148012638092
+  ],
+  "impact_cut_angle_below_horizontal_degrees": 81.01932709620247,
+  "recovery_edge_sample_time": 0.5321739130434783,
+  "recovery_edge_position_godot": [
+    0.014999999664723873,
+    0.11573385447263718,
+    0.9112385511398315
+  ],
+  "contact_hold_seconds": [
+    0.4434782608695652,
+    0.46956521739130436
+  ],
+  "recovery_duration_seconds": 0.15652173913043477,
+  "impact_edge_end_godot": [
+    0.11100000143051147,
+    1.1175870895385742e-08,
+    0.8690530061721802
+  ],
+  "tool_bone": "hoe_tool",
+  "hand_bones": [
+    "hand.L",
+    "hand.R"
+  ],
+  "grip_markers": [
+    "Grip_L",
+    "Grip_R"
+  ],
+  "skeleton_path": "ForestGirlScale/Forest_Girl_Rig/Skeleton3D",
+  "grip_spacing_m": 0.125,
+  "max_grip_error_m": 1.8907453925087333e-07,
+  "max_arm_joint_error_m": 1.3329305248569582e-07,
+  "max_reach_error_m": 0,
+  "blade_contact_samples": [
+    {
+      "time": 0.0,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.004167,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.008333,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.0125,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.016667,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.020833,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.025,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.029167,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.033333,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.0375,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.041667,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.045833,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.05,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.054167,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.058333,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.0625,
+      "blade_min_z": 0.230183
+    },
+    {
+      "time": 0.066667,
+      "blade_min_z": 0.233839
+    },
+    {
+      "time": 0.070833,
+      "blade_min_z": 0.244817
+    },
+    {
+      "time": 0.075,
+      "blade_min_z": 0.262562
+    },
+    {
+      "time": 0.079167,
+      "blade_min_z": 0.286541
+    },
+    {
+      "time": 0.083333,
+      "blade_min_z": 0.316225
+    },
+    {
+      "time": 0.0875,
+      "blade_min_z": 0.351068
+    },
+    {
+      "time": 0.091667,
+      "blade_min_z": 0.390495
+    },
+    {
+      "time": 0.095833,
+      "blade_min_z": 0.433302
+    },
+    {
+      "time": 0.1,
+      "blade_min_z": 0.479251
+    },
+    {
+      "time": 0.104167,
+      "blade_min_z": 0.527624
+    },
+    {
+      "time": 0.108333,
+      "blade_min_z": 0.536897
+    },
+    {
+      "time": 0.1125,
+      "blade_min_z": 0.542852
+    },
+    {
+      "time": 0.116667,
+      "blade_min_z": 0.548916
+    },
+    {
+      "time": 0.120833,
+      "blade_min_z": 0.555017
+    },
+    {
+      "time": 0.125,
+      "blade_min_z": 0.561076
+    },
+    {
+      "time": 0.129167,
+      "blade_min_z": 0.567011
+    },
+    {
+      "time": 0.133333,
+      "blade_min_z": 0.572736
+    },
+    {
+      "time": 0.1375,
+      "blade_min_z": 0.578161
+    },
+    {
+      "time": 0.141667,
+      "blade_min_z": 0.583192
+    },
+    {
+      "time": 0.145833,
+      "blade_min_z": 0.587732
+    },
+    {
+      "time": 0.15,
+      "blade_min_z": 0.591684
+    },
+    {
+      "time": 0.154167,
+      "blade_min_z": 0.594947
+    },
+    {
+      "time": 0.158333,
+      "blade_min_z": 0.597421
+    },
+    {
+      "time": 0.1625,
+      "blade_min_z": 0.599009
+    },
+    {
+      "time": 0.166667,
+      "blade_min_z": 0.599617
+    },
+    {
+      "time": 0.170833,
+      "blade_min_z": 0.60014
+    },
+    {
+      "time": 0.175,
+      "blade_min_z": 0.601765
+    },
+    {
+      "time": 0.179167,
+      "blade_min_z": 0.604394
+    },
+    {
+      "time": 0.183333,
+      "blade_min_z": 0.607921
+    },
+    {
+      "time": 0.1875,
+      "blade_min_z": 0.612243
+    },
+    {
+      "time": 0.191667,
+      "blade_min_z": 0.617254
+    },
+    {
+      "time": 0.195833,
+      "blade_min_z": 0.622852
+    },
+    {
+      "time": 0.2,
+      "blade_min_z": 0.62893
+    },
+    {
+      "time": 0.204167,
+      "blade_min_z": 0.635383
+    },
+    {
+      "time": 0.208333,
+      "blade_min_z": 0.642105
+    },
+    {
+      "time": 0.2125,
+      "blade_min_z": 0.648988
+    },
+    {
+      "time": 0.216667,
+      "blade_min_z": 0.655924
+    },
+    {
+      "time": 0.220833,
+      "blade_min_z": 0.662802
+    },
+    {
+      "time": 0.225,
+      "blade_min_z": 0.669493
+    },
+    {
+      "time": 0.229167,
+      "blade_min_z": 0.675882
+    },
+    {
+      "time": 0.233333,
+      "blade_min_z": 0.681886
+    },
+    {
+      "time": 0.2375,
+      "blade_min_z": 0.687393
+    },
+    {
+      "time": 0.241667,
+      "blade_min_z": 0.692288
+    },
+    {
+      "time": 0.245833,
+      "blade_min_z": 0.696458
+    },
+    {
+      "time": 0.25,
+      "blade_min_z": 0.699788
+    },
+    {
+      "time": 0.254167,
+      "blade_min_z": 0.702165
+    },
+    {
+      "time": 0.258333,
+      "blade_min_z": 0.703475
+    },
+    {
+      "time": 0.2625,
+      "blade_min_z": 0.703701
+    },
+    {
+      "time": 0.266667,
+      "blade_min_z": 0.703701
+    },
+    {
+      "time": 0.270833,
+      "blade_min_z": 0.703701
+    },
+    {
+      "time": 0.275,
+      "blade_min_z": 0.703701
+    },
+    {
+      "time": 0.279167,
+      "blade_min_z": 0.703701
+    },
+    {
+      "time": 0.283333,
+      "blade_min_z": 0.703701
+    },
+    {
+      "time": 0.2875,
+      "blade_min_z": 0.703701
+    },
+    {
+      "time": 0.291667,
+      "blade_min_z": 0.703701
+    },
+    {
+      "time": 0.295833,
+      "blade_min_z": 0.703701
+    },
+    {
+      "time": 0.3,
+      "blade_min_z": 0.703312
+    },
+    {
+      "time": 0.304167,
+      "blade_min_z": 0.701163
+    },
+    {
+      "time": 0.308333,
+      "blade_min_z": 0.69732
+    },
+    {
+      "time": 0.3125,
+      "blade_min_z": 0.691994
+    },
+    {
+      "time": 0.316667,
+      "blade_min_z": 0.685402
+    },
+    {
+      "time": 0.320833,
+      "blade_min_z": 0.677762
+    },
+    {
+      "time": 0.325,
+      "blade_min_z": 0.669273
+    },
+    {
+      "time": 0.329167,
+      "blade_min_z": 0.660104
+    },
+    {
+      "time": 0.333333,
+      "blade_min_z": 0.650527
+    },
+    {
+      "time": 0.3375,
+      "blade_min_z": 0.64076
+    },
+    {
+      "time": 0.341667,
+      "blade_min_z": 0.631018
+    },
+    {
+      "time": 0.345833,
+      "blade_min_z": 0.621517
+    },
+    {
+      "time": 0.35,
+      "blade_min_z": 0.612469
+    },
+    {
+      "time": 0.354167,
+      "blade_min_z": 0.604083
+    },
+    {
+      "time": 0.358333,
+      "blade_min_z": 0.596563
+    },
+    {
+      "time": 0.3625,
+      "blade_min_z": 0.590111
+    },
+    {
+      "time": 0.366667,
+      "blade_min_z": 0.584921
+    },
+    {
+      "time": 0.370833,
+      "blade_min_z": 0.581187
+    },
+    {
+      "time": 0.375,
+      "blade_min_z": 0.579095
+    },
+    {
+      "time": 0.379167,
+      "blade_min_z": 0.578785
+    },
+    {
+      "time": 0.383333,
+      "blade_min_z": 0.539253
+    },
+    {
+      "time": 0.3875,
+      "blade_min_z": 0.485155
+    },
+    {
+      "time": 0.391667,
+      "blade_min_z": 0.430005
+    },
+    {
+      "time": 0.395833,
+      "blade_min_z": 0.374566
+    },
+    {
+      "time": 0.4,
+      "blade_min_z": 0.320749
+    },
+    {
+      "time": 0.404167,
+      "blade_min_z": 0.269264
+    },
+    {
+      "time": 0.408333,
+      "blade_min_z": 0.220757
+    },
+    {
+      "time": 0.4125,
+      "blade_min_z": 0.175805
+    },
+    {
+      "time": 0.416667,
+      "blade_min_z": 0.134932
+    },
+    {
+      "time": 0.420833,
+      "blade_min_z": 0.098616
+    },
+    {
+      "time": 0.425,
+      "blade_min_z": 0.067301
+    },
+    {
+      "time": 0.429167,
+      "blade_min_z": 0.04142
+    },
+    {
+      "time": 0.433333,
+      "blade_min_z": 0.021406
+    },
+    {
+      "time": 0.4375,
+      "blade_min_z": 0.007717
+    },
+    {
+      "time": 0.441667,
+      "blade_min_z": 0.0
+    },
+    {
+      "time": 0.445833,
+      "blade_min_z": 0.0
+    },
+    {
+      "time": 0.45,
+      "blade_min_z": 0.000139
+    },
+    {
+      "time": 0.454167,
+      "blade_min_z": 0.000139
+    },
+    {
+      "time": 0.458333,
+      "blade_min_z": 0.000139
+    },
+    {
+      "time": 0.4625,
+      "blade_min_z": 0.000139
+    },
+    {
+      "time": 0.466667,
+      "blade_min_z": 0.000139
+    },
+    {
+      "time": 0.470833,
+      "blade_min_z": 0.000273
+    },
+    {
+      "time": 0.475,
+      "blade_min_z": 0.002492
+    },
+    {
+      "time": 0.479167,
+      "blade_min_z": 0.007152
+    },
+    {
+      "time": 0.483333,
+      "blade_min_z": 0.013888
+    },
+    {
+      "time": 0.4875,
+      "blade_min_z": 0.022338
+    },
+    {
+      "time": 0.491667,
+      "blade_min_z": 0.032137
+    },
+    {
+      "time": 0.495833,
+      "blade_min_z": 0.04291
+    },
+    {
+      "time": 0.5,
+      "blade_min_z": 0.054269
+    },
+    {
+      "time": 0.504167,
+      "blade_min_z": 0.065812
+    },
+    {
+      "time": 0.508333,
+      "blade_min_z": 0.077125
+    },
+    {
+      "time": 0.5125,
+      "blade_min_z": 0.087779
+    },
+    {
+      "time": 0.516667,
+      "blade_min_z": 0.097335
+    },
+    {
+      "time": 0.520833,
+      "blade_min_z": 0.105344
+    },
+    {
+      "time": 0.525,
+      "blade_min_z": 0.111358
+    },
+    {
+      "time": 0.529167,
+      "blade_min_z": 0.114927
+    },
+    {
+      "time": 0.533333,
+      "blade_min_z": 0.11583
+    },
+    {
+      "time": 0.5375,
+      "blade_min_z": 0.117671
+    },
+    {
+      "time": 0.541667,
+      "blade_min_z": 0.121631
+    },
+    {
+      "time": 0.545833,
+      "blade_min_z": 0.127416
+    },
+    {
+      "time": 0.55,
+      "blade_min_z": 0.134736
+    },
+    {
+      "time": 0.554167,
+      "blade_min_z": 0.143302
+    },
+    {
+      "time": 0.558333,
+      "blade_min_z": 0.152817
+    },
+    {
+      "time": 0.5625,
+      "blade_min_z": 0.162979
+    },
+    {
+      "time": 0.566667,
+      "blade_min_z": 0.173478
+    },
+    {
+      "time": 0.570833,
+      "blade_min_z": 0.183996
+    },
+    {
+      "time": 0.575,
+      "blade_min_z": 0.194207
+    },
+    {
+      "time": 0.579167,
+      "blade_min_z": 0.203781
+    },
+    {
+      "time": 0.583333,
+      "blade_min_z": 0.212378
+    },
+    {
+      "time": 0.5875,
+      "blade_min_z": 0.219659
+    },
+    {
+      "time": 0.591667,
+      "blade_min_z": 0.225281
+    },
+    {
+      "time": 0.595833,
+      "blade_min_z": 0.228902
+    },
+    {
+      "time": 0.6,
+      "blade_min_z": 0.230183
+    }
+  ],
+  "preview_only_closed_hand_meshes": 12,
+  "tool_meshes": 18,
+  "tool_triangles": 680,
+  "max_exported_subframe_grip_error_m": 0.0004701040705433934,
+  "wrist_roll_validation": {
+    "HoeIdle": {
+      "R": {
+        "max_axial_roll_degrees": 6.149307798275834e-05,
+        "min_palm_reference_transverse_length": 0.7288677723399394,
+        "recovery_axial_roll_range_degrees": 5.947706429833318e-05
+      },
+      "L": {
+        "max_axial_roll_degrees": 3.474683759908713e-05,
+        "min_palm_reference_transverse_length": 0.9894101457715218,
+        "recovery_axial_roll_range_degrees": 5.5446553778809604e-05
+      }
+    },
+    "Hoe": {
+      "R": {
+        "max_axial_roll_degrees": 0.02102219902738208,
+        "min_palm_reference_transverse_length": 0.9379223110783825,
+        "recovery_axial_roll_range_degrees": 0.01334399959411943
+      },
+      "L": {
+        "max_axial_roll_degrees": 0.013333795238695722,
+        "min_palm_reference_transverse_length": 0.9830134707492095,
+        "recovery_axial_roll_range_degrees": 0.005385857010196325
+      }
+    }
+  },
+  "vertical_plane_validation": {
+    "max_socket_lateral_drift_m": 0.12899415880441667,
+    "max_cutting_edge_lateral_offset_m": 0.02057928591966629,
+    "max_chest_lateral_tilt": 0.09899096935987473
+  },
+  "exported_impact_blade_min_z": -9.230279829353094e-08,
+  "exported_impact_cutting_edge_min_z": -9.230279829353094e-08,
+  "raised_time": 0.2791304347826087,
+  "raised_socket_height_m": 1.369739294052124,
+  "raised_tool_top_m": 1.4157781600952148,
+  "raised_hat_top_m": 1.177385926246643,
+  "raised_arm_extension_ratio": {
+    "R": 0.5640693003396087,
+    "L": 0.8747121801994064
+  },
+  "raised_wrist_height_above_shoulder_m": {
+    "R": 0.14624327421188354,
+    "L": 0.2246289849281311
+  },
+  "arm_segment_total_length_m": {
+    "R": 0.3055046810494595,
+    "L": 0.30550462147918545
+  },
+  "head_tool_mesh_edge_intersections": 6565,
+  "head_tool_mesh_vertex_min_distance_m": 4.956176553605474e-07
+}

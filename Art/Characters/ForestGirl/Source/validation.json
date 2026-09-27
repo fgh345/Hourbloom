@@ -1,0 +1,18 @@
+{
+  "file_bytes": 2074508,
+  "meshes": 254,
+  "materials": 29,
+  "skins": 1,
+  "animations": [
+    {
+      "name": "Idle",
+      "channels": 48
+    },
+    {
+      "name": "Walk",
+      "channels": 48
+    }
+  ],
+  "external_files": [],
+  "finite_float_data": true
+}

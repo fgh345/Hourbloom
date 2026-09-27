@@ -1,0 +1,11 @@
+{
+  "mesh_objects": 254,
+  "vertices": 13629,
+  "triangles": 25122,
+  "bones": 16,
+  "animations": [
+    "Idle",
+    "Walk"
+  ],
+  "walk_note": "Analytic two-bone leg targets, planted stance feet, in-place cycle; no root motion or cloth simulation."
+}

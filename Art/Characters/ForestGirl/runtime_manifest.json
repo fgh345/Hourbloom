@@ -1,0 +1,142 @@
+{
+  "source": "Source/forest_girl.glb",
+  "profile_refinement": {
+    "front_back_vertex_xz_preserved": true,
+    "parts": {
+      "Bag • satchel body": {
+        "depth_before": 0.23500000685453415,
+        "depth_after": 0.29375000298023224
+      },
+      "Dress • fitted bodice": {
+        "depth_before": 0.4399999976158142,
+        "depth_after": 0.6176000237464905
+      },
+      "Dress • shaped gathered pleats": {
+        "depth_before": 0.7160000205039978,
+        "depth_after": 1.1599199771881104
+      },
+      "Head • shaped cheeks and short chin": {
+        "depth_before": 0.80799999833107,
+        "depth_after": 1.0659199953079224
+      }
+    }
+  },
+  "meshes": 254,
+  "triangles": 25122,
+  "materials": 29,
+  "bones": [
+    "root",
+    "pelvis",
+    "chest",
+    "head",
+    "upper_arm.L",
+    "forearm.L",
+    "hand.L",
+    "upper_arm.R",
+    "forearm.R",
+    "hand.R",
+    "thigh.L",
+    "shin.L",
+    "foot.L",
+    "thigh.R",
+    "shin.R",
+    "foot.R"
+  ],
+  "source_height": 3.6020769984461367,
+  "source_floor": 0.0004999726079404354,
+  "uniform_scale": 0.3331411295532149,
+  "height": 1.2,
+  "floor": 0.0,
+  "front": "Blender -Y / Godot +Z",
+  "clips": [
+    {
+      "name": "Idle",
+      "duration": 2.0,
+      "loop": true,
+      "source": "user"
+    },
+    {
+      "name": "freehand_idle",
+      "duration": 2.0,
+      "loop": true
+    },
+    {
+      "name": "Walk",
+      "duration": 1.0,
+      "loop": true,
+      "source": "user"
+    },
+    {
+      "name": "freehand_walk",
+      "duration": 1.0,
+      "loop": true
+    },
+    {
+      "name": "freehand_run",
+      "duration": 0.75,
+      "loop": true
+    },
+    {
+      "name": "jump_start",
+      "duration": 0.2916666666666667,
+      "loop": false
+    },
+    {
+      "name": "jump_move",
+      "duration": 0.2916666666666667,
+      "loop": false
+    },
+    {
+      "name": "freehand_fall",
+      "duration": 0.25,
+      "loop": false
+    },
+    {
+      "name": "fall_move",
+      "duration": 0.25,
+      "loop": false
+    },
+    {
+      "name": "landing_soft",
+      "duration": 0.20833333333333334,
+      "loop": false
+    },
+    {
+      "name": "landing_recoil",
+      "duration": 0.20833333333333334,
+      "loop": false
+    },
+    {
+      "name": "pose_lean_left",
+      "duration": 0.125,
+      "loop": false
+    },
+    {
+      "name": "pose_lean_right",
+      "duration": 0.125,
+      "loop": false
+    }
+  ],
+  "export_reimport_validation": {
+    "height": 1.1999999897088856,
+    "floor": 5.797483026981354e-08,
+    "sampled_clips": [
+      "pose_lean_right",
+      "pose_lean_left",
+      "landing_recoil",
+      "landing_soft",
+      "fall_move",
+      "freehand_fall",
+      "jump_move",
+      "jump_start",
+      "freehand_run",
+      "freehand_walk",
+      "freehand_idle",
+      "Idle",
+      "Walk"
+    ],
+    "landing_floor_min": -0.0015179316978901625,
+    "landing_floor_max": 1.0142684914171696e-08
+  },
+  "jump_note": "Separate standing/running arcs; stationary soft contact or additive upper-body recoil over live locomotion; no rolling."
+}

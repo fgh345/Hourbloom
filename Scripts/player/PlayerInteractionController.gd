@@ -80,6 +80,11 @@ func try_use_tool(player: CharacterBody3D, tool: Tool) -> bool:
 	if tool == null:
 		return false
 
+	# Hoe contact is sampled in front of the character, even when the camera
+	# points into the sky. Other tools retain their screen-target interaction.
+	if tool is HoeTool:
+		return player.has_method("start_hoe_action") and player.start_hoe_action(tool)
+
 	var hit := _raycast_from_screen_center(player)
 	if hit.is_empty():
 		return false

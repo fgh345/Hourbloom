@@ -14,9 +14,7 @@ var _previous_velocity_direction: Vector2 = Vector2.ZERO
 var _was_on_floor: bool = true
 var _landing_state: StringName = &""
 var _landing_state_time_left: float = 0.0
-var _airborne_peak_horizontal_speed: float = 0.0
-var _post_roll_recover_time_left: float = 0.0
-var _roll_walk_handoff_pending: bool = false
+var _airborne_style: float = 0.0
 
 func _init(player: CharacterBody3D, player_data: PlayerData, gravity: float, hero_mesh: Node3D, anim_tree: AnimationTree, hero_base_yaw: float) -> void:
 	_player = player
@@ -35,6 +33,9 @@ func prime_animation_tree() -> void:
 	_anim_tree.set("parameters/movement/transition_request", String("Idle"))
 	_anim_tree.set("parameters/walk_speed/scale", _walk_anim_scale)
 	_anim_tree.set("parameters/run_lean/add_amount", _run_lean_amount)
+	_anim_tree.set("parameters/jump_style/blend_amount", _airborne_style)
+	_anim_tree.set("parameters/fall_style/blend_amount", _airborne_style)
+	_anim_tree.set("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
 
 func process_movement(delta: float, movement_enabled: bool = true, reference_basis: Basis = Basis.IDENTITY) -> void:
 	if _player == null:
@@ -42,27 +43,18 @@ func process_movement(delta: float, movement_enabled: bool = true, reference_bas
 
 	# 1. Cache floor state at the start of the frame
 	var current_is_on_floor := _player.is_on_floor()
-	var speed_multiplier: float = 1.0
 
-	# 2. Handle Landing Roll Speed Modifiers
-	if _landing_state == &"LandRolling" and _landing_state_time_left > 0.0:
-		var normalized_roll_time := clampf(_landing_state_time_left / maxf(_player.landing_roll_hold_time, 0.001), 0.0, 1.0)
-		speed_multiplier = clampf(_player.landing_roll_movement_multiplier * normalized_roll_time, 0.0, 1.0)
-
-		if _landing_state_time_left <= _player.landing_roll_zero_velocity_window:
-			movement_enabled = false
-	
-	# 3. Apply GravityQ
+	# 2. Apply gravity
 	if not current_is_on_floor:
-		_player.velocity.y -= _gravity * delta
+		_player.velocity.y -= _gravity * _player.jump_gravity_multiplier * delta
 
 	var move_direction_world := Vector3.ZERO
 	var is_moving := false
 	var is_sprinting := false
 
-	# 4. Input & Velocity Calculation
+	# 3. Input & velocity calculation
 	if not movement_enabled:
-		# FIX: When movement is disabled (e.g., end of roll), brake smoothly instead of snapping to a halt.
+		# Brake smoothly when movement is disabled.
 		_player.velocity.x = lerpf(_player.velocity.x, 0.0, 6.0 * delta)
 		_player.velocity.z = lerpf(_player.velocity.z, 0.0, 6.0 * delta)
 	else:
@@ -70,7 +62,7 @@ func process_movement(delta: float, movement_enabled: bool = true, reference_bas
 		is_moving = input_dir.length_squared() > 0.0
 		is_sprinting = Input.is_physical_key_pressed(KEY_SHIFT)
 
-		# 4b. Apply Encumbrance Modifiers
+		# Apply encumbrance modifiers
 		var encumbrance_multiplier: float = 1.0
 		var can_jump_mass := true
 		
@@ -88,12 +80,14 @@ func process_movement(delta: float, movement_enabled: bool = true, reference_bas
 			if current_mass > max_mass * 1.5: # Extremely heavy
 				can_jump_mass = false
 
-		# Prevent jumping while committed to a roll or too heavy
-		var can_jump := current_is_on_floor and _landing_state != &"LandRolling" and can_jump_mass
+		# Landing animation never blocks a new jump.
+		var can_jump := current_is_on_floor and can_jump_mass
 		if Input.is_action_just_pressed("ui_accept") and can_jump:
 			_player.velocity.y = _player.jump_velocity
+			_landing_state = &""
+			_landing_state_time_left = 0.0
 
-		var speed: float = (_player.sprint_speed if is_sprinting else _player.walk_speed) * speed_multiplier * encumbrance_multiplier
+		var speed: float = (_player.sprint_speed if is_sprinting else _player.walk_speed) * encumbrance_multiplier
 
 		if is_sprinting and is_moving and _player_data != null:
 			_player_data.burn_energy(delta)
@@ -106,12 +100,8 @@ func process_movement(delta: float, movement_enabled: bool = true, reference_bas
 		# MOMENTUM FIX: Dynamic acceleration/deceleration rates
 		var accel_rate := 1.0
 		if current_is_on_floor:
-			if _landing_state == &"LandRolling":
-				# Rolling momentum: Slide much longer (2.5) if keys are released to let the animation play out.
-				accel_rate = 8.0 if is_moving else 2.5 
-			else:
-				# Normal ground momentum: Smooth Run -> Walk -> Idle deceleration (6.0) instead of a hard stop.
-				accel_rate = 12.0 if is_moving else 6.0 
+			# Smooth Run -> Walk -> Idle deceleration instead of a hard stop.
+			accel_rate = 12.0 if is_moving else 6.0
 		else:
 			# Air momentum
 			accel_rate = 3.0 if is_moving else 0.5   
@@ -148,6 +138,13 @@ func _update_animation_tree(delta: float, is_moving: bool, is_sprinting: bool, i
 	var just_landed: bool = (not _was_on_floor) and is_on_floor_now
 
 	if not is_on_floor_now:
+		if _was_on_floor:
+			# Lock the pose to takeoff speed; air steering must not shuffle the legs.
+			# Walking off a ledge uses the same choice as an intentional jump.
+			_airborne_style = clampf(horizontal_speed / maxf(_player.walk_speed, 0.01), 0.0, 1.0)
+			_anim_tree.set("parameters/jump_style/blend_amount", _airborne_style)
+			_anim_tree.set("parameters/fall_style/blend_amount", _airborne_style)
+			_anim_tree.set("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
 		if _player.velocity.y > 0.0:
 			next_state = &"Jump"
 		else:
@@ -155,52 +152,23 @@ func _update_animation_tree(delta: float, is_moving: bool, is_sprinting: bool, i
 
 		_landing_state = &""
 		_landing_state_time_left = 0.0
-		_post_roll_recover_time_left = 0.0
-		_roll_walk_handoff_pending = false
-		_airborne_peak_horizontal_speed = maxf(_airborne_peak_horizontal_speed, horizontal_speed)
 	elif just_landed:
-		var landing_speed := maxf(horizontal_speed, _airborne_peak_horizontal_speed)
-		if landing_speed >= _player.landing_roll_speed_threshold:
-			_landing_state = &"LandRolling"
-			# T-POSE FIX: Trigger the handoff exactly 0.25s BEFORE the animation finishes to account for the BlendTree Xfade.
-			_landing_state_time_left = minf(_player.landing_roll_hold_time, 1.5333 - 0.3) 
-			_post_roll_recover_time_left = _player.landing_roll_recover_time
-			_roll_walk_handoff_pending = false
+		if is_moving or is_physically_walking:
+			# Keep the feet stepping while only the upper body absorbs impact.
+			_landing_state = &""
+			_landing_state_time_left = 0.0
+			_anim_tree.set("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 		else:
 			_landing_state = &"LandSoft"
 			_landing_state_time_left = _player.landing_soft_hold_time
-			_post_roll_recover_time_left = 0.0
-			_roll_walk_handoff_pending = false
-		_airborne_peak_horizontal_speed = 0.0
-		next_state = _landing_state
-	elif _landing_state_time_left > 0.0 and _landing_state != &"":
-		_landing_state_time_left = maxf(_landing_state_time_left - delta, 0.0)
+			next_state = _landing_state
+	elif _landing_state_time_left > 0.0:
+		# A new movement input immediately releases the stationary landing pose.
+		_landing_state_time_left = 0.0 if is_moving or is_physically_walking else maxf(_landing_state_time_left - delta, 0.0)
 		if _landing_state_time_left > 0.0:
 			next_state = _landing_state
 		else:
-			if _landing_state == &"LandRolling":
-				_roll_walk_handoff_pending = true
 			_landing_state = &""
-	else:
-		_airborne_peak_horizontal_speed = 0.0
-
-	var walk_scale_override: float = -1.0
-	if is_on_floor_now and _roll_walk_handoff_pending:
-		next_state = &"Walk"
-		walk_scale_override = maxf(_player.landing_roll_recover_walk_scale, 0.01)
-		if _anim_tree.get("parameters/movement/current_state") == &"Walk":
-			_roll_walk_handoff_pending = false
-
-	if is_on_floor_now and _landing_state == &"" and _post_roll_recover_time_left > 0.0:
-		_post_roll_recover_time_left = maxf(_post_roll_recover_time_left - delta, 0.0)
-		next_state = &"Walk"
-		walk_scale_override = maxf(_player.landing_roll_recover_walk_scale, 0.01)
-	else:
-		if not is_on_floor_now:
-			_post_roll_recover_time_left = 0.0
-
-	if walk_scale_override > 0.0:
-		target_walk_scale = walk_scale_override
 
 	_walk_anim_scale = lerpf(_walk_anim_scale, target_walk_scale, _player.walk_anim_scale_lerp_speed * delta)
 	_anim_tree.set("parameters/walk_speed/scale", _walk_anim_scale)

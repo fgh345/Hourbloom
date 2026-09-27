@@ -1,0 +1,107 @@
+{
+  "source": "reimported GLB",
+  "minimum_separating_gap": 0.05204278230667114,
+  "frames_checked": 25,
+  "samples": [
+    {
+      "frame": 1,
+      "minimum_separating_gap": 0.05289191007614136
+    },
+    {
+      "frame": 2,
+      "minimum_separating_gap": 0.05393272638320923
+    },
+    {
+      "frame": 3,
+      "minimum_separating_gap": 0.05515676736831665
+    },
+    {
+      "frame": 4,
+      "minimum_separating_gap": 0.056354641914367676
+    },
+    {
+      "frame": 5,
+      "minimum_separating_gap": 0.05734318494796753
+    },
+    {
+      "frame": 6,
+      "minimum_separating_gap": 0.05800938606262207
+    },
+    {
+      "frame": 7,
+      "minimum_separating_gap": 0.05833089351654053
+    },
+    {
+      "frame": 8,
+      "minimum_separating_gap": 0.05837363004684448
+    },
+    {
+      "frame": 9,
+      "minimum_separating_gap": 0.05825960636138916
+    },
+    {
+      "frame": 10,
+      "minimum_separating_gap": 0.06026170402765274
+    },
+    {
+      "frame": 11,
+      "minimum_separating_gap": 0.07148141413927078
+    },
+    {
+      "frame": 12,
+      "minimum_separating_gap": 0.07636228948831558
+    },
+    {
+      "frame": 13,
+      "minimum_separating_gap": 0.07434440404176712
+    },
+    {
+      "frame": 14,
+      "minimum_separating_gap": 0.0661415234208107
+    },
+    {
+      "frame": 15,
+      "minimum_separating_gap": 0.058387041091918945
+    },
+    {
+      "frame": 16,
+      "minimum_separating_gap": 0.05812561511993408
+    },
+    {
+      "frame": 17,
+      "minimum_separating_gap": 0.05754232406616211
+    },
+    {
+      "frame": 18,
+      "minimum_separating_gap": 0.0566401481628418
+    },
+    {
+      "frame": 19,
+      "minimum_separating_gap": 0.05550295114517212
+    },
+    {
+      "frame": 20,
+      "minimum_separating_gap": 0.054285645484924316
+    },
+    {
+      "frame": 21,
+      "minimum_separating_gap": 0.05318218469619751
+    },
+    {
+      "frame": 22,
+      "minimum_separating_gap": 0.05238533020019531
+    },
+    {
+      "frame": 23,
+      "minimum_separating_gap": 0.05204278230667114
+    },
+    {
+      "frame": 24,
+      "minimum_separating_gap": 0.05222129821777344
+    },
+    {
+      "frame": 25,
+      "minimum_separating_gap": 0.05289191007614136
+    }
+  ]
+}

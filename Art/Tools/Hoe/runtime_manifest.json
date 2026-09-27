@@ -1,0 +1,111 @@
+{
+  "source_character": "Art/Characters/ForestGirl/runtime.blend",
+  "source_hoe": "Art/Tools/Hoe/hoe_preview.blend",
+  "fps": 240,
+  "clips": [
+    {
+      "name": "Hoe",
+      "duration": 0.6,
+      "loop": false
+    },
+    {
+      "name": "Walk",
+      "duration": 1.0,
+      "loop": true
+    },
+    {
+      "name": "Idle",
+      "duration": 2.0,
+      "loop": true
+    },
+    {
+      "name": "freehand_idle",
+      "duration": 2.0,
+      "loop": true
+    },
+    {
+      "name": "freehand_walk",
+      "duration": 1.0,
+      "loop": true
+    },
+    {
+      "name": "freehand_run",
+      "duration": 0.75,
+      "loop": true
+    },
+    {
+      "name": "jump_start",
+      "duration": 0.2916666666666667,
+      "loop": false
+    },
+    {
+      "name": "jump_move",
+      "duration": 0.2916666666666667,
+      "loop": false
+    },
+    {
+      "name": "freehand_fall",
+      "duration": 0.25,
+      "loop": false
+    },
+    {
+      "name": "fall_move",
+      "duration": 0.25,
+      "loop": false
+    },
+    {
+      "name": "landing_soft",
+      "duration": 0.20833333333333334,
+      "loop": false
+    },
+    {
+      "name": "landing_recoil",
+      "duration": 0.20833333333333334,
+      "loop": false
+    },
+    {
+      "name": "pose_lean_left",
+      "duration": 0.125,
+      "loop": false
+    },
+    {
+      "name": "pose_lean_right",
+      "duration": 0.125,
+      "loop": false
+    }
+  ],
+  "bones": [
+    "hoe_tool",
+    "root",
+    "pelvis",
+    "chest",
+    "head",
+    "upper_arm.L",
+    "forearm.L",
+    "hand.L",
+    "upper_arm.R",
+    "forearm.R",
+    "hand.R",
+    "thigh.L",
+    "shin.L",
+    "foot.L",
+    "thigh.R",
+    "shin.R",
+    "foot.R"
+  ],
+  "skeleton_path": "ForestGirlScale/Forest_Girl_Rig/Skeleton3D",
+  "tool_mesh_prefix": "Hoe_",
+  "grip_hand_mesh_prefix": "GripHand_",
+  "open_hand_mesh_prefix": "OpenHand_",
+  "continuous_arm_mesh_prefix": "HoeArm_",
+  "open_hand_mesh_count": 12,
+  "max_exported_arm_length_error_m": 2.486269387869111e-07,
+  "max_exported_grip_error_m": 0.0004510767520225942,
+  "max_axial_wrist_roll_degrees": 0.012392774135221501,
+  "impact_time": 0.4434782608695652,
+  "impact_position_godot": [
+    0.014999999664723873,
+    1.1175870895385742e-08,
+    0.8690530061721802
+  ]
+}

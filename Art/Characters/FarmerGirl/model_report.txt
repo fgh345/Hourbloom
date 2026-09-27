@@ -1,0 +1,191 @@
+{
+  "triangles": 3608,
+  "vertices": 1950,
+  "runtime_meshes": 11,
+  "material_surfaces": 11,
+  "texture_resolution": [
+    1024,
+    1024
+  ],
+  "height_m": 1.2,
+  "bones": 27,
+  "animations": [
+    {
+      "name": "Idle",
+      "frames": 91,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "Walk",
+      "frames": 31,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "Run",
+      "frames": 22,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "Pickup",
+      "frames": 61,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "Carry",
+      "frames": 61,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "Watering",
+      "frames": 61,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "Hoe",
+      "frames": 61,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "Plant",
+      "frames": 61,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "Wave",
+      "frames": 61,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "freehand_idle",
+      "frames": 91,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "freehand_walk",
+      "frames": 31,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "freehand_run",
+      "frames": 22,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "carry_harvest",
+      "frames": 61,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "watering",
+      "frames": 61,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "wave",
+      "frames": 61,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "freehand_fall",
+      "frames": 31,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "jump_start",
+      "frames": 16,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "landing_soft",
+      "frames": 13,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "landing_roll",
+      "frames": 46,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "pose_lean_left",
+      "frames": 4,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "pose_lean_right",
+      "frames": 4,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "thinking",
+      "frames": 61,
+      "fps": 30,
+      "loop": true
+    },
+    {
+      "name": "QA_Squat",
+      "frames": 4,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "QA_ArmsUp",
+      "frames": 4,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "QA_HoldItem",
+      "frames": 4,
+      "fps": 30,
+      "loop": false
+    },
+    {
+      "name": "QA_TPose",
+      "frames": 4,
+      "fps": 30,
+      "loop": false
+    }
+  ],
+  "expressions": [
+    "Neutral",
+    "Happy",
+    "Surprised",
+    "Angry",
+    "Sad",
+    "Blink",
+    "Sleepy",
+    "Thinking"
+  ],
+  "topology": "closed manifold; no duplicate vertices or degenerate faces",
+  "uv": "unique packed body islands; separate padded facial cells",
+  "uv_overlap_texels": 0,
+  "feet_min_z": 0.0,
+  "max_bone_influences": 3,
+  "source": "build_farmer_girl.py",
+  "axis": "Blender -Y forward / Godot +Z forward",
+  "material_count": 1,
+  "head_height_m": 0.42,
+  "heads_tall": 2.857
+}
+Export File: Assets/Characters/FarmerGirl/farm_girl.glb

@@ -1,14 +1,17 @@
 extends CharacterBody3D
 
 @export var simulation_player_id: StringName = &"player.main"
+@export var character_visual_path: NodePath = NodePath("CharacterVisual")
+@export var character_animation_tree_path: NodePath = NodePath("CharacterVisual/AnimationTree")
 const OrbitCameraControllerRef = preload("res://Scripts/camera/OrbitCameraController.gd")
 @export var walk_speed: float = 5.0
 @export var sprint_speed: float = 8.0
-@export var jump_velocity: float = 4.5
+@export var jump_velocity: float = 4.8
+@export_range(0.1, 4.0, 0.05) var jump_gravity_multiplier: float = 1.6
 @export var mouse_sensitivity: float = 0.002
 @export var camera_vertical_speed: float = 3.0
-@export var camera_height_min: float = 1.2
-@export var camera_height_max: float = 3.2
+@export var camera_height_min: float = 0.7
+@export var camera_height_max: float = 2.7
 @export var camera_zoom_step: float = 0.5
 @export var camera_zoom_min: float = 1.5
 @export var camera_zoom_max: float = 6.0
@@ -27,19 +30,13 @@ const OrbitCameraControllerRef = preload("res://Scripts/camera/OrbitCameraContro
 @export var run_lean_lerp_speed: float = 12.0
 @export var run_lean_full_turn_rate_degrees: float = 240.0
 @export var run_lean_min_speed: float = 0.75
-@export var landing_roll_speed_threshold: float = 5.5
-@export var landing_soft_hold_time: float = 0.2
-@export var landing_roll_hold_time: float = 1.5
-@export var landing_roll_movement_multiplier: float = 0.80
-@export var landing_roll_zero_velocity_window: float = 0.12
-@export var landing_roll_recover_time: float = 0.25
-@export var landing_roll_recover_walk_scale: float = 1.2
+@export var landing_soft_hold_time: float = 0.18
 @export var hover_ray_interval_frames: int = 10
 
 @onready var spring_arm: SpringArm3D = $SpringArm3D
 @onready var camera: Camera3D = $SpringArm3D/Camera3D
-@onready var hero_mesh: Node3D = $hero_male
-@onready var Anim_tree: AnimationTree = $hero_male/AnimationTree
+@onready var hero_mesh: Node3D = get_node_or_null(character_visual_path) as Node3D
+@onready var Anim_tree: AnimationTree = get_node_or_null(character_animation_tree_path) as AnimationTree
 
 
 var _player_data: PlayerData
@@ -53,6 +50,7 @@ var godmode_speed := 25.0
 var _tool_inventory: RefCounted = preload("res://Scripts/player/PlayerToolInventory.gd").new()
 var _interaction_controller: RefCounted
 var _movement_controller: RefCounted
+var _hoe_controller: RefCounted
 var _camera_controller: OrbitCameraController
 var _hero_base_yaw: float = 0.0
 var _hover_frame_count: int = 0
@@ -64,7 +62,7 @@ func _ready() -> void:
 	_player_data = GameManager.session.entities.get_player(simulation_player_id)
 	_sync_from_simulation_core()
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	_hero_base_yaw = hero_mesh.rotation.y
+	_hero_base_yaw = hero_mesh.rotation.y if hero_mesh != null else 0.0
 	_camera_controller = OrbitCameraControllerRef.new()
 	add_child(_camera_controller)
 	_camera_controller.setup(spring_arm, camera)
@@ -84,6 +82,9 @@ func _ready() -> void:
 	_movement_controller = preload("res://Scripts/player/PlayerMovementController.gd").new(self, _player_data, gravity, hero_mesh, Anim_tree, _hero_base_yaw)
 	if Anim_tree != null:
 		_movement_controller.prime_animation_tree()
+
+	_hoe_controller = preload("res://Scripts/player/PlayerHoeController.gd").new(self, hero_mesh, Anim_tree)
+	visibility_changed.connect(_on_player_visibility_changed)
 
 	# TERRAIN3D COLLISION FIX
 	var terrain: Node = get_tree().root.find_child("Terrain3D", true, false)
@@ -107,6 +108,9 @@ func _input(event: InputEvent) -> void:
 	# Godot callback: primary input handler; toggles help, equips tools, interacts, adjusts zoom, and uses the active tool.
 	
 	if GameInput.is_gameplay_input_blocked(get_tree()):
+		return
+
+	if is_hoe_action_active():
 		return
 
 	if event is InputEventKey:
@@ -178,6 +182,7 @@ func drop_item(index: int) -> void:
 	GameLog.info("Dropped %s x%d" % [entity.definition_id, stack_count])
 
 func toggle_godmode() -> bool:
+	cancel_hoe_action()
 	is_godmode = not is_godmode
 	if is_godmode:
 		collision_layer = 0
@@ -192,6 +197,7 @@ func _physics_process(delta: float) -> void:
 	# Godot physics callback: per-physics-frame delegates movement/animation to controller, updates camera, and syncs state.
 	
 	if GameInput.is_gameplay_input_blocked(get_tree()):
+		cancel_hoe_action()
 		_publish_player_state_to_simulation_core()
 		return
 
@@ -200,9 +206,12 @@ func _physics_process(delta: float) -> void:
 	else:
 		_movement_controller.process_movement(
 			delta,
-			true,
+			not is_hoe_action_active(),
 			Basis(Vector3.UP, _camera_controller.get_yaw_global())
 		)
+
+	if _hoe_controller != null:
+		_hoe_controller.update(delta, _tool_inventory.get_active_tool() is HoeTool)
 
 	_hover_frame_count += 1
 	if _hover_frame_count >= hover_ray_interval_frames:
@@ -250,3 +259,23 @@ func _publish_player_state_to_simulation_core() -> void:
 func _refresh_tool_ui() -> void:
 	# Updates the UI with the currently equipped tool name.
 	EventBus.player_tool_equipped.emit(_tool_inventory.get_active_tool_name())
+
+func start_hoe_action(tool: HoeTool) -> bool:
+	if _hoe_controller == null or _tool_inventory.get_active_tool() != tool:
+		return false
+	return _hoe_controller.start(tool)
+
+func is_hoe_action_active() -> bool:
+	return _hoe_controller != null and _hoe_controller.is_active()
+
+func cancel_hoe_action() -> void:
+	if _hoe_controller != null:
+		_hoe_controller.cancel()
+
+func _on_player_visibility_changed() -> void:
+	if not is_visible_in_tree():
+		cancel_hoe_action()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_DISABLED or what == NOTIFICATION_PAUSED:
+		cancel_hoe_action()

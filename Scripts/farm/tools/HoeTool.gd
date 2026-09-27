@@ -5,7 +5,12 @@ class_name HoeTool
 func _init() -> void:
 	tool_name = "锄头（翻耕草地）"
 
-func use_tool(player: CharacterBody3D, block_pos: Vector3, _normal: Vector3) -> void:
+func use_tool(player: CharacterBody3D, _block_pos: Vector3, _normal: Vector3) -> void:
+	if player.has_method("start_hoe_action"):
+		player.start_hoe_action(self)
+
+# Called once by the player's action clock at the blade's actual ground contact.
+func apply_impact(player: CharacterBody3D, block_pos: Vector3) -> void:
 	if not GameManager.session.farm.can_plow_at(block_pos):
 		GameLog.info("[工具] 此处不可耕作，地面不属于农田区域。（灰度 ID：%d）" % GameManager.session.farm.get_raw_region_value(block_pos))
 		return
