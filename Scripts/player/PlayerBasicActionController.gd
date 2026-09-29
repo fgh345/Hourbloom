@@ -9,6 +9,7 @@ var _player: CharacterBody3D
 var _visual: Node3D
 var _tree: AnimationTree
 var _kind: StringName = &""
+var _revision := 0
 var _elapsed := 0.0
 var _committed := false
 var _origin := Vector3.ZERO
@@ -32,6 +33,7 @@ func start(kind: StringName, effect: Callable, valid: Callable = Callable()) -> 
 		return false
 	if _tree.get("parameters/basic_action_blend/blend_amount") == null:
 		return false
+	_revision += 1
 	_kind = kind
 	_effect = effect
 	_valid = valid
@@ -61,12 +63,19 @@ func update(delta: float) -> void:
 	_tree.set("parameters/basic_action_blend/blend_amount", clampf(weight, 0.0, 1.0))
 	if not _committed and _elapsed >= CONTACT[_kind]:
 		_committed = true
-		if not _valid.is_valid() or _valid.call():
+		var revision := _revision
+		var is_valid: bool = not _valid.is_valid() or _valid.call()
+		if _revision != revision:
+			return
+		if is_valid:
 			_effect.call()
+			if _revision != revision:
+				return
 	if _elapsed >= DURATIONS[_kind]:
 		cancel()
 
 func cancel() -> void:
+	_revision += 1
 	_kind = &""
 	_effect = Callable()
 	_valid = Callable()

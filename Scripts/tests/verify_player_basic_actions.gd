@@ -28,6 +28,14 @@ func ticks(count: int) -> void:
 	for i in count:
 		await tick()
 
+func cancel_in_validation() -> bool:
+	player.cancel_basic_action()
+	return true
+
+func hide_player_on_effect() -> void:
+	calls += 1
+	player.visible = false
+
 func verify() -> void:
 	root.get_node("GameManager").start_new_game()
 	GameInput.ensure_default_bindings()
@@ -69,6 +77,15 @@ func verify() -> void:
 	player.cancel_basic_action()
 	await ticks(40)
 	check(calls == before_cancel and not player.is_action_active(), "Cancellation cannot execute effect")
+	var before_validation_cancel := calls
+	check(player.start_basic_action(&"Interact", func(): calls += 1, cancel_in_validation), "Start action cancelled by validation")
+	await ticks(ceili(CONTACT[&"Interact"] / STEP) + 2)
+	check(calls == before_validation_cancel and not player.is_action_active(), "Validation cancellation skips effect")
+	var before_effect_cancel := calls
+	check(player.start_basic_action(&"Interact", hide_player_on_effect), "Start action cancelled by effect")
+	await ticks(ceili(CONTACT[&"Interact"] / STEP) + 2)
+	check(calls == before_effect_cancel + 1 and not player.is_action_active(), "Visibility cancellation during effect releases action")
+	player.visible = true
 	var farm = root.get_node("GameManager").session.farm
 	var target := Vector3(0, 0, -1)
 	var tile: Vector2i = farm.world_to_grid(target)
