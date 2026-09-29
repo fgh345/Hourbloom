@@ -70,18 +70,14 @@ func plow_world(world_pos: Vector3) -> bool:
 
 # Called by SeedTool.gd
 func seed_world(world_pos: Vector3) -> bool:
-	var grid_pos := GameManager.session.farm.world_to_grid(world_pos)
-	var tile_data: FarmTileData = GameManager.session.farm.get_tile_data(grid_pos)
-
-	if tile_data.state == FarmData.SoilState.PLOWED:
-		return GameManager.session.farm.plant_crop(grid_pos, &"generic", GameManager.session.farm.DEFAULT_CROP_GROWTH_MINUTES, world_pos.y)
-	return false
+	return GameManager.session.farm.plant_crop_at(world_pos) > 0
 
 # Called by HarvestTool.gd. harvest_crop clears the crop, emits tile_updated
 # (which repaints soil and removes the crop node), and returns the yield.
 func harvest_world(world_pos: Vector3) -> Dictionary:
-	var grid_pos := GameManager.session.farm.world_to_grid(world_pos)
-	return GameManager.session.farm.harvest_crop(grid_pos)
+	var farm := GameManager.session.farm
+	var crop := farm.get_crop_near(world_pos, 0.6, true)
+	return farm.harvest_crop_id(crop.id) if crop != null else {}
 
 func _on_tile_updated(grid_pos: Vector2i, new_state: int) -> void:
 	if not _runtime_paint_ready:

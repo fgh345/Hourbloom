@@ -23,10 +23,10 @@ func use_tool(player: CharacterBody3D, block_pos: Vector3, _normal: Vector3) -> 
 	# Fallback if world service is not present
 	var tile_data: FarmTileData = GameManager.session.farm.get_tile_data(grid_pos)
 	if tile_data.state == FarmData.SoilState.PLOWED:
-		if GameManager.session.farm.plant_crop(grid_pos, &"generic", GameManager.session.farm.DEFAULT_CROP_GROWTH_MINUTES, block_pos.y):
+		if GameManager.session.farm.plant_crop_at(block_pos) > 0:
 			GameLog.info("[工具] 已在 %s 播种！" % str(grid_pos))
 		else:
-			GameLog.info("[工具] 在 %s 播种失败。" % str(grid_pos))
+			GameLog.info("[工具] 此位置与已有种子重叠。")
 	elif tile_data.state == FarmData.SoilState.GRASS:
 		GameLog.info("[工具] 草地不能播种，请先翻耕土壤。")
 	else:

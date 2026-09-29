@@ -14,20 +14,16 @@ func use_tool(player: CharacterBody3D, block_pos: Vector3, _normal: Vector3) -> 
 		return
 
 	var farm := GameManager.session.farm
-	var grid_pos: Vector2i = farm.world_to_grid(block_pos)
-	var tile_data: FarmTileData = farm.get_tile_data(grid_pos)
-
-	if tile_data.state != FarmData.SoilState.HARVESTABLE:
-		if tile_data.state == FarmData.SoilState.SEEDED:
+	var crop := farm.get_crop_near(block_pos, 0.6, true)
+	if crop == null:
+		if farm.get_crop_near(block_pos, 0.6) != null:
 			GameLog.info("[工具] 作物还没成熟，再等等。")
-		elif tile_data.state == FarmData.SoilState.PLOWED:
-			GameLog.info("[工具] 这里刚翻耕过，还没播种。")
 		else:
 			GameLog.info("[工具] 这里没有可收获的作物。")
 		return
 
 	# 收获地块：清作物、回 PLOWED，并经由 tile_updated 自动刷掉作物模型与土壤贴图。
-	var harvest: Dictionary = _harvest_at(player, block_pos, grid_pos)
+	var harvest: Dictionary = _harvest_at(player, crop.id)
 	if harvest.is_empty():
 		GameLog.info("[工具] 收获失败。")
 		return
@@ -36,11 +32,8 @@ func use_tool(player: CharacterBody3D, block_pos: Vector3, _normal: Vector3) -> 
 	_give_yield_to_player(player, yield_count)
 
 ## 经由土壤服务收获（优先走服务，便于统一刷 Terrain 贴图与后续特效钩子）。
-func _harvest_at(player: CharacterBody3D, block_pos: Vector3, grid_pos: Vector2i) -> Dictionary:
-	var soil_service: Node = player.get_tree().get_first_node_in_group("soil_layer_service")
-	if soil_service != null and soil_service.has_method("harvest_world"):
-		return soil_service.harvest_world(block_pos) as Dictionary
-	return GameManager.session.farm.harvest_crop(grid_pos)
+func _harvest_at(_player: CharacterBody3D, crop_id: int) -> Dictionary:
+	return GameManager.session.farm.harvest_crop_id(crop_id)
 
 ## 产量进背包；背包满则掉在脚边，保证不丢作物。
 func _give_yield_to_player(player: CharacterBody3D, yield_count: int) -> void:

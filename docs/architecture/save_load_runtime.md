@@ -23,9 +23,10 @@ user://Saves/
     entities.json
     FarmLayers/
       soil_state.png
-      crop_type.png
-      planted_time.exr
-      planted_time.json   # optional fallback when EXR write fails
+      crop_instances.json # authoritative per-plant IDs, positions and growth state
+      crop_type.png       # blank in v2; read for v1 migration
+      planted_time.exr    # blank in v2; read for v1 migration
+      planted_time.json   # optional EXR fallback
 ```
 
 ---
@@ -89,11 +90,11 @@ Recovery behavior:
 - `__last_simulated_minute` per component
 - entity streaming-group assignments
 
-`FarmLayers` image payloads include:
+`FarmLayers` payloads include:
 
 - soil state (L8)
-- crop id (L8)
-- planted minute (RF EXR, with JSON sparse fallback)
+- independent crops (JSON with stable ID, exact world position, crop type, growth timing and footprint radii)
+- blank crop id (L8) and planted minute (RF EXR or JSON fallback) compatibility layers; older slots lacking `crop_instances.json` migrate their image-based crop records into independent crops on load
 
 ---
 

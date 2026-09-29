@@ -15,7 +15,9 @@ var simulation_chunk_size_tiles: int = 32
 # The abstract grid dictionary: Vector2i -> FarmTileData
 var _grid: Dictionary = {}
 var _tiles_by_chunk: Dictionary = {}
-var _seeded_tiles_by_chunk: Dictionary = {}
+var _crops: Dictionary = {} # int -> CropData; independent of soil tiles
+var _crops_by_chunk: Dictionary = {} # Vector2i -> {int: true}
+var _next_crop_id: int = 1
 var _chunk_unloaded_at_minute: Dictionary = {}
 var _loaded_chunks: Dictionary = {}
 var _last_processed_minute: int = -1
@@ -26,6 +28,7 @@ var map_fields: Array[FieldPolygon] = []
 
 # Emitted when a specific tile changes state
 signal tile_updated(grid_pos: Vector2i, new_state: int)
+signal crop_updated(crop_id: int, exists: bool)
 signal chunk_loaded(chunk_pos: Vector2i, catch_up_seconds: int)
 signal chunk_unloaded(chunk_pos: Vector2i, unloaded_at_minute: int)
 
@@ -70,12 +73,7 @@ func get_total_chunk_count() -> int:
 	return _tiles_by_chunk.size()
 
 func get_seeded_tile_count() -> int:
-	var count: int = 0
-	for chunk_pos_any: Variant in _seeded_tiles_by_chunk.keys():
-		if chunk_pos_any is Vector2i:
-			var chunk_tiles: Dictionary = _seeded_tiles_by_chunk[chunk_pos_any]
-			count += chunk_tiles.size()
-	return count
+	return _crops.size()
 
 func get_loaded_chunk_count() -> int:
 	return _loaded_chunks.size()
@@ -99,16 +97,119 @@ func get_chunk_tiles(chunk_pos: Vector2i) -> Array[Vector2i]:
 			tiles.append(grid_pos_any)
 	return tiles
 
-func get_seeded_chunk_tiles(chunk_pos: Vector2i) -> Array[Vector2i]:
-	if not _seeded_tiles_by_chunk.has(chunk_pos):
-		return []
+func get_crop(crop_id: int) -> CropData:
+	return _crops.get(crop_id, null) as CropData
 
+func get_chunk_crop_ids(chunk_pos: Vector2i) -> Array[int]:
+	var result: Array[int] = []
+	var ids: Dictionary = _crops_by_chunk.get(chunk_pos, {})
+	for id_any: Variant in ids:
+		result.append(int(id_any))
+	return result
+
+func can_plant_at(position: Vector3, seed_radius: float = 0.05) -> bool:
+	if get_tile_data(world_to_grid(position)).state != SoilState.PLOWED:
+		return false
+	# Only physical seed footprints block placement; adult canopies may compete.
+	var reach := maxi(1, ceili(seed_radius + 1.0))
+	var chunk := world_to_chunk(position)
+	for dz in range(-reach, reach + 1):
+		for dx in range(-reach, reach + 1):
+			for id: int in get_chunk_crop_ids(chunk + Vector2i(dx, dz)):
+				var other := get_crop(id)
+				if other != null and Vector2(position.x, position.z).distance_to(Vector2(other.position.x, other.position.z)) < seed_radius + other.seed_radius:
+					return false
+	return true
+
+func plant_crop_at(position: Vector3, crop_type: StringName = &"generic", growth_minutes_required: int = DEFAULT_CROP_GROWTH_MINUTES, seed_radius: float = 0.05, mature_radius: float = 0.25) -> int:
+	if not can_plant_at(position, seed_radius):
+		return 0
+	var crop := CropData.new()
+	crop.id = _next_crop_id
+	_next_crop_id += 1
+	crop.position = position
+	crop.crop_type = crop_type
+	crop.planted_at_minute = get_current_total_minutes()
+	crop.simulated_until_minute = crop.planted_at_minute
+	crop.growth_minutes_required = maxi(1, growth_minutes_required)
+	crop.seed_radius = maxf(0.001, seed_radius)
+	crop.mature_radius = maxf(crop.seed_radius, mature_radius)
+	_register_crop(crop)
+	return crop.id
+
+func _register_crop(crop: CropData) -> void:
+	_crops[crop.id] = crop
+	var chunk := world_to_chunk(crop.position)
+	if not _crops_by_chunk.has(chunk):
+		_crops_by_chunk[chunk] = {}
+	(_crops_by_chunk[chunk] as Dictionary)[crop.id] = true
+	_next_crop_id = maxi(_next_crop_id, crop.id + 1)
+	crop_updated.emit(crop.id, true)
+
+func get_crop_near(position: Vector3, radius: float = 0.6, harvestable_only: bool = false) -> CropData:
+	var closest: CropData = null
+	var best := radius * radius
+	var chunk := world_to_chunk(position)
+	for dz in range(-1, 2):
+		for dx in range(-1, 2):
+			for id: int in get_chunk_crop_ids(chunk + Vector2i(dx, dz)):
+				var crop := get_crop(id)
+				if crop == null or (harvestable_only and not crop.is_harvestable(get_current_total_minutes())):
+					continue
+				var d := Vector2(position.x, position.z).distance_squared_to(Vector2(crop.position.x, crop.position.z))
+				if d <= best:
+					closest = crop
+					best = d
+	return closest
+
+func get_crop_covered_tiles(crop_id: int, at_minute: int = -1) -> Array[Vector2i]:
+	var crop := get_crop(crop_id)
 	var tiles: Array[Vector2i] = []
-	var chunk_tiles: Dictionary = _seeded_tiles_by_chunk[chunk_pos]
-	for grid_pos_any: Variant in chunk_tiles.keys():
-		if grid_pos_any is Vector2i:
-			tiles.append(grid_pos_any)
+	if crop == null:
+		return tiles
+	var minute := get_current_total_minutes() if at_minute < 0 else at_minute
+	var radius := lerpf(crop.seed_radius, crop.mature_radius, crop.progress(minute))
+	for z in range(floori(crop.position.z - radius), floori(crop.position.z + radius) + 1):
+		for x in range(floori(crop.position.x - radius), floori(crop.position.x + radius) + 1):
+			var closest := Vector2(clampf(crop.position.x, float(x), float(x + 1)), clampf(crop.position.z, float(z), float(z + 1)))
+			if closest.distance_squared_to(Vector2(crop.position.x, crop.position.z)) <= radius * radius:
+				tiles.append(Vector2i(x, z))
 	return tiles
+
+func harvest_crop_id(crop_id: int) -> Dictionary:
+	var crop := get_crop(crop_id)
+	if crop == null or not crop.is_harvestable(get_current_total_minutes()):
+		return {}
+	_remove_crop(crop_id)
+	return {"crop_type": crop.crop_type, "yield": 1}
+
+func _remove_crop(crop_id: int) -> void:
+	var crop := get_crop(crop_id)
+	if crop == null:
+		return
+	var chunk := world_to_chunk(crop.position)
+	(_crops_by_chunk[chunk] as Dictionary).erase(crop_id)
+	if (_crops_by_chunk[chunk] as Dictionary).is_empty():
+		_crops_by_chunk.erase(chunk)
+	_crops.erase(crop_id)
+	crop_updated.emit(crop_id, false)
+
+func export_crops() -> Array:
+	var result: Array = []
+	for crop_any: Variant in _crops.values():
+		result.append((crop_any as CropData).to_dict())
+	return result
+
+func import_crops(entries: Array) -> void:
+	_crops.clear()
+	_crops_by_chunk.clear()
+	_next_crop_id = 1
+	for entry_any: Variant in entries:
+		if entry_any is not Dictionary:
+			continue
+		var crop := CropData.from_dict(entry_any)
+		if crop != null and crop.id > 0 and not _crops.has(crop.id):
+			_register_crop(crop)
 
 func is_chunk_loaded(chunk_pos: Vector2i) -> bool:
 	return not _chunk_unloaded_at_minute.has(chunk_pos)
@@ -119,19 +220,9 @@ func get_current_total_minutes() -> int:
 	return 0
 
 func get_tile_growth_progress(grid_pos: Vector2i, at_total_minutes: int = -1) -> float:
-	if not _grid.has(grid_pos):
-		return 0.0
-
-	var data: FarmTileData = _grid[grid_pos]
-	if not data.has_active_crop():
-		return 0.0
-
-	var sample_minutes: int = at_total_minutes
-	if sample_minutes < 0:
-		sample_minutes = get_current_total_minutes()
-
-	var elapsed: int = maxi(0, sample_minutes - data.planted_at_minute)
-	return clamp(float(elapsed) / float(data.growth_minutes_required), 0.0, 1.0)
+	var center := grid_to_world_center(grid_pos)
+	var crop := get_crop_near(Vector3(center.x, 0, center.y), 0.71)
+	return crop.progress(get_current_total_minutes() if at_total_minutes < 0 else at_total_minutes) if crop != null else 0.0
 
 # Sets the state of a tile and alerts listeners (like GridManager)
 func set_tile_state(grid_pos: Vector2i, new_state: int, world_height: float = NAN, should_emit: bool = true) -> void:
@@ -142,8 +233,11 @@ func set_tile_state(grid_pos: Vector2i, new_state: int, world_height: float = NA
 	var data: FarmTileData = get_tile_data(grid_pos)
 	data.state = new_state
 
-	if new_state == SoilState.GRASS or new_state == SoilState.PLOWED:
-		data.clear_crop_data()
+	if new_state == SoilState.GRASS:
+		for id: int in get_chunk_crop_ids(grid_to_chunk(grid_pos)):
+			var crop := get_crop(id)
+			if crop != null and world_to_grid(crop.position) == grid_pos:
+				_remove_crop(id)
 
 	# Height should be captured when creating/refreshing soil patches, not during later state swaps.
 	if not is_nan(world_height) and (new_state == SoilState.PLOWED or not had_existing):
@@ -180,46 +274,14 @@ func plant_crop(
 	growth_minutes_required: int = DEFAULT_CROP_GROWTH_MINUTES,
 	world_height: float = NAN
 ) -> bool:
-	var tile_data := get_tile_data(grid_pos)
-	if tile_data.state != SoilState.PLOWED:
-		return false
-
-	var had_existing := _grid.has(grid_pos)
-	if had_existing:
-		_remove_tile_from_indices(grid_pos)
-
-	tile_data.state = SoilState.SEEDED
-	tile_data.crop_type = crop_type
-	tile_data.planted_at_minute = get_current_total_minutes()
-	tile_data.growth_minutes_required = maxi(1, growth_minutes_required)
-	if not is_nan(world_height):
-		tile_data.height = world_height
-
-	_grid[grid_pos] = tile_data
-	_register_tile_in_indices(grid_pos, tile_data)
-	emit_signal("tile_updated", grid_pos, SoilState.SEEDED)
-	return true
+	var center := grid_to_world_center(grid_pos)
+	var height := get_tile_data(grid_pos).height if is_nan(world_height) else world_height
+	return plant_crop_at(Vector3(center.x, height, center.y), crop_type, growth_minutes_required) > 0
 
 func harvest_crop(grid_pos: Vector2i) -> Dictionary:
-	if not _grid.has(grid_pos):
-		return {}
-
-	var tile_data: FarmTileData = _grid[grid_pos]
-	if tile_data.state != SoilState.HARVESTABLE or not tile_data.has_active_crop():
-		return {}
-
-	var harvest := {
-		"crop_type": tile_data.crop_type,
-		"yield": 1
-	}
-
-	_remove_tile_from_indices(grid_pos)
-	tile_data.state = SoilState.PLOWED
-	tile_data.clear_crop_data()
-	_grid[grid_pos] = tile_data
-	_register_tile_in_indices(grid_pos, tile_data)
-	emit_signal("tile_updated", grid_pos, SoilState.PLOWED)
-	return harvest
+	var center := grid_to_world_center(grid_pos)
+	var crop := get_crop_near(Vector3(center.x, 0, center.y), 0.71, true)
+	return harvest_crop_id(crop.id) if crop != null else {}
 
 func mark_chunk_unloaded(chunk_pos: Vector2i) -> void:
 	if _chunk_unloaded_at_minute.has(chunk_pos):
@@ -265,7 +327,7 @@ func simulate_passage_of_time(delta_seconds: int, emit_tile_updates: bool = fals
 	var target_minute := get_current_total_minutes() + delta_minutes
 	var chunks_to_simulate: Array = target_chunks
 	if chunks_to_simulate.is_empty():
-		chunks_to_simulate = _seeded_tiles_by_chunk.keys()
+		chunks_to_simulate = _crops_by_chunk.keys()
 
 	for chunk_any: Variant in chunks_to_simulate:
 		if chunk_any is Vector2i:
@@ -274,6 +336,10 @@ func simulate_passage_of_time(delta_seconds: int, emit_tile_updates: bool = fals
 # Completely clears a tile back to default grass
 func reset_tile(grid_pos: Vector2i) -> void:
 	if _grid.has(grid_pos):
+		for id: int in get_chunk_crop_ids(grid_to_chunk(grid_pos)):
+			var crop := get_crop(id)
+			if crop != null and world_to_grid(crop.position) == grid_pos:
+				_remove_crop(id)
 		_remove_tile_from_indices(grid_pos)
 		_grid.erase(grid_pos)
 		emit_signal("tile_updated", grid_pos, SoilState.GRASS)
@@ -297,65 +363,33 @@ func _get_chunks_to_simulate_on_tick() -> Array[Vector2i]:
 	# The chunk system is purely a 3D rendering optimisation — simulation must
 	# never stall because of it.
 	if _loaded_chunks.is_empty() and _chunk_unloaded_at_minute.is_empty():
-		for chunk_pos_any: Variant in _seeded_tiles_by_chunk.keys():
+		for chunk_pos_any: Variant in _crops_by_chunk.keys():
 			if chunk_pos_any is Vector2i:
 				chunks.append(chunk_pos_any)
 		return chunks
 
 	for chunk_pos_any: Variant in _loaded_chunks.keys():
-		if chunk_pos_any is Vector2i and _seeded_tiles_by_chunk.has(chunk_pos_any):
+		if chunk_pos_any is Vector2i and _crops_by_chunk.has(chunk_pos_any):
 			chunks.append(chunk_pos_any)
 
 	return chunks
 
 func _simulate_chunk_to_minute(chunk_pos: Vector2i, target_minute: int, emit_tile_updates: bool) -> void:
-	if not _seeded_tiles_by_chunk.has(chunk_pos):
+	if not _crops_by_chunk.has(chunk_pos):
 		return
+	for id: int in get_chunk_crop_ids(chunk_pos):
+		var crop := get_crop(id)
+		if crop != null and target_minute > crop.simulated_until_minute:
+			crop.simulated_until_minute = target_minute
+		if crop != null and emit_tile_updates:
+			crop_updated.emit(id, true)
 
-	var chunk_seeded_tiles: Dictionary = _seeded_tiles_by_chunk[chunk_pos]
-	for grid_pos_any: Variant in chunk_seeded_tiles.keys():
-		if grid_pos_any is Vector2i:
-			_simulate_tile_to_minute(grid_pos_any, target_minute, emit_tile_updates)
-
-func _simulate_tile_to_minute(grid_pos: Vector2i, target_minute: int, emit_tile_updates: bool) -> void:
-	if not _grid.has(grid_pos):
-		return
-
-	var tile_data: FarmTileData = _grid[grid_pos]
-	if not tile_data.has_active_crop():
-		return
-
-	if tile_data.state != SoilState.SEEDED and tile_data.state != SoilState.HARVESTABLE:
-		return
-
-	var elapsed_minutes := maxi(0, target_minute - tile_data.planted_at_minute)
-	var desired_state := SoilState.SEEDED
-	if elapsed_minutes >= tile_data.growth_minutes_required:
-		desired_state = SoilState.HARVESTABLE
-
-	if desired_state == tile_data.state:
-		return
-
-	_remove_tile_from_indices(grid_pos)
-	tile_data.state = desired_state
-	_grid[grid_pos] = tile_data
-	_register_tile_in_indices(grid_pos, tile_data)
-
-	if emit_tile_updates:
-		emit_signal("tile_updated", grid_pos, tile_data.state)
-
-func _register_tile_in_indices(grid_pos: Vector2i, tile_data: FarmTileData) -> void:
+func _register_tile_in_indices(grid_pos: Vector2i, _tile_data: FarmTileData) -> void:
 	var chunk_pos := grid_to_chunk(grid_pos)
 	if not _tiles_by_chunk.has(chunk_pos):
 		_tiles_by_chunk[chunk_pos] = {}
 	var chunk_tiles: Dictionary = _tiles_by_chunk[chunk_pos]
 	chunk_tiles[grid_pos] = true
-
-	if tile_data.state == SoilState.SEEDED or tile_data.state == SoilState.HARVESTABLE:
-		if not _seeded_tiles_by_chunk.has(chunk_pos):
-			_seeded_tiles_by_chunk[chunk_pos] = {}
-		var chunk_seeded_tiles: Dictionary = _seeded_tiles_by_chunk[chunk_pos]
-		chunk_seeded_tiles[grid_pos] = true
 
 func _remove_tile_from_indices(grid_pos: Vector2i) -> void:
 	var chunk_pos := grid_to_chunk(grid_pos)
@@ -365,12 +399,6 @@ func _remove_tile_from_indices(grid_pos: Vector2i) -> void:
 		chunk_tiles.erase(grid_pos)
 		if chunk_tiles.is_empty():
 			_tiles_by_chunk.erase(chunk_pos)
-
-	if _seeded_tiles_by_chunk.has(chunk_pos):
-		var chunk_seeded_tiles: Dictionary = _seeded_tiles_by_chunk[chunk_pos]
-		chunk_seeded_tiles.erase(grid_pos)
-		if chunk_seeded_tiles.is_empty():
-			_seeded_tiles_by_chunk.erase(chunk_pos)
 
 func load_map_fields_from_json(file_path: String, offset: Vector2 = Vector2.ZERO) -> void:
 	if file_path.is_empty() or not FileAccess.file_exists(file_path):
@@ -419,7 +447,9 @@ func generate_initial_plowed_fields() -> void:
 func clear_runtime_state(keep_region_mask: bool = true) -> void:
 	_grid.clear()
 	_tiles_by_chunk.clear()
-	_seeded_tiles_by_chunk.clear()
+	_crops.clear()
+	_crops_by_chunk.clear()
+	_next_crop_id = 1
 	_chunk_unloaded_at_minute.clear()
 	_loaded_chunks.clear()
 	_last_processed_minute = -1
@@ -428,7 +458,6 @@ func clear_runtime_state(keep_region_mask: bool = true) -> void:
 
 func rebuild_active_growth_chunk_index() -> void:
 	_tiles_by_chunk.clear()
-	_seeded_tiles_by_chunk.clear()
 
 	for grid_pos_any: Variant in _grid.keys():
 		if grid_pos_any is not Vector2i:
@@ -504,12 +533,7 @@ func export_heatmap_layers(crop_to_id: Dictionary) -> Dictionary:
 		if pixel.x < 0 or pixel.y < 0:
 			continue
 
-		soil_image.set_pixelv(pixel, Color(float(tile_data.state) / 255.0, 0, 0, 1))
-
-		if tile_data.crop_type != &"" and crop_to_id.has(tile_data.crop_type):
-			var crop_id: int = int(crop_to_id[tile_data.crop_type])
-			crop_image.set_pixelv(pixel, Color(float(clampi(crop_id, 0, 255)) / 255.0, 0, 0, 1))
-			planted_time_image.set_pixelv(pixel, Color(float(tile_data.planted_at_minute), 0, 0, 1))
+		soil_image.set_pixelv(pixel, Color(float(SoilState.PLOWED if tile_data.state != SoilState.GRASS else SoilState.GRASS) / 255.0, 0, 0, 1))
 
 	return {
 		"soil_state": soil_image,
@@ -541,32 +565,20 @@ func import_heatmap_layers(soil_image: Image, crop_image: Image, planted_time_im
 
 			var grid_pos := _heatmap_pixel_to_grid(Vector2i(x, y), width, height)
 			var tile := FarmTileData.new()
-			tile.state = clampi(soil_value, SoilState.GRASS, SoilState.HARVESTABLE)
+			tile.state = SoilState.PLOWED if soil_value != SoilState.GRASS or crop_value > 0 else SoilState.GRASS
 
 			if crop_value > 0 and id_to_crop.has(str(crop_value)):
-				tile.crop_type = StringName(String(id_to_crop[str(crop_value)]))
-				tile.growth_minutes_required = DEFAULT_CROP_GROWTH_MINUTES
+				var planted := get_current_total_minutes()
 				if planted_time_image != null:
-					tile.planted_at_minute = int(round(planted_time_image.get_pixel(x, y).r))
-				else:
-					tile.planted_at_minute = get_current_total_minutes()
-
-				if tile.planted_at_minute < 0:
-					tile.planted_at_minute = get_current_total_minutes()
-
-				if tile.state == SoilState.GRASS or tile.state == SoilState.PLOWED:
-					tile.state = SoilState.SEEDED
-
-				# Offline catch-up: hydrate to correct growth state immediately on load.
-				var elapsed_minutes := maxi(0, get_current_total_minutes() - tile.planted_at_minute)
-				if elapsed_minutes >= tile.growth_minutes_required:
-					tile.state = SoilState.HARVESTABLE
-				else:
-					tile.state = SoilState.SEEDED
-			else:
-				tile.clear_crop_data()
-				if tile.state == SoilState.SEEDED or tile.state == SoilState.HARVESTABLE:
-					tile.state = SoilState.PLOWED
+					planted = maxi(0, int(round(planted_time_image.get_pixel(x, y).r)))
+				var center := grid_to_world_center(grid_pos)
+				var crop := CropData.new()
+				crop.id = _next_crop_id
+				crop.crop_type = StringName(String(id_to_crop[str(crop_value)]))
+				crop.position = Vector3(center.x, tile.height, center.y)
+				crop.planted_at_minute = planted
+				crop.simulated_until_minute = get_current_total_minutes()
+				_register_crop(crop)
 
 			_grid[grid_pos] = tile
 

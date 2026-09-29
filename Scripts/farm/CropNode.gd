@@ -1,8 +1,6 @@
 extends Node3D
 
-var grid_position: Vector2i
-const START_SCALE := Vector3(0.2, 0.2, 0.2)
-const FULL_SCALE := Vector3(1.0, 1.0, 1.0)
+var crop_id: int
 
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 var _harvest_material: StandardMaterial3D
@@ -11,25 +9,36 @@ func _ready() -> void:
 	add_to_group("crop_node")
 	if GameManager.session != null and GameManager.session.farm != null:
 		var farm := GameManager.session.farm
-		if not farm.is_connected("tile_updated", Callable(self, "_on_farm_tile_updated")):
-			farm.connect("tile_updated", Callable(self, "_on_farm_tile_updated"))
-	scale = START_SCALE
+		if not farm.crop_updated.is_connected(_on_crop_updated):
+			farm.crop_updated.connect(_on_crop_updated)
+	scale = Vector3.ONE * 0.2
 	refresh_from_data()
 
 func _exit_tree() -> void:
 	if GameManager.session != null and GameManager.session.farm != null:
 		var farm := GameManager.session.farm
-		if farm.is_connected("tile_updated", Callable(self, "_on_farm_tile_updated")):
-			farm.disconnect("tile_updated", Callable(self, "_on_farm_tile_updated"))
+		if farm.crop_updated.is_connected(_on_crop_updated):
+			farm.crop_updated.disconnect(_on_crop_updated)
 
 func refresh_from_data() -> void:
-	var tile_data := GameManager.session.farm.get_tile_data(grid_position)
-	apply_visual_from_tile_data(tile_data)
-
-func apply_visual_from_tile_data(tile_data: FarmTileData) -> void:
-	var growth_progress := GameManager.session.farm.get_tile_growth_progress(grid_position)
-	scale = START_SCALE.lerp(FULL_SCALE, growth_progress)
-	set_harvestable_visual(tile_data.state == FarmData.SoilState.HARVESTABLE)
+	var farm := GameManager.session.farm
+	var crop := farm.get_crop(crop_id)
+	if crop == null:
+		queue_free()
+		return
+	var size := lerpf(0.2, 1.0, crop.progress(farm.get_current_total_minutes()))
+	# Crowded plants stay smaller so their placeholder meshes do not overlap.
+	var chunk := farm.world_to_chunk(crop.position)
+	for dz in range(-1, 2):
+		for dx in range(-1, 2):
+			for other_id: int in farm.get_chunk_crop_ids(chunk + Vector2i(dx, dz)):
+				if other_id == crop_id:
+					continue
+				var other := farm.get_crop(other_id)
+				var distance := Vector2(crop.position.x, crop.position.z).distance_to(Vector2(other.position.x, other.position.z))
+				size = minf(size, distance / (crop.mature_radius + other.mature_radius))
+	scale = Vector3.ONE * maxf(0.01, size)
+	set_harvestable_visual(crop.is_harvestable(farm.get_current_total_minutes()))
 
 func set_harvestable_visual(is_harvestable: bool) -> void:
 	if not is_harvestable:
@@ -42,12 +51,10 @@ func set_harvestable_visual(is_harvestable: bool) -> void:
 
 	mesh_instance.set_surface_override_material(0, _harvest_material)
 
-func _on_farm_tile_updated(updated_grid_pos: Vector2i, new_state: int) -> void:
-	if updated_grid_pos != grid_position:
+func _on_crop_updated(updated_id: int, exists: bool) -> void:
+	if updated_id != crop_id:
 		return
-
-	if new_state == FarmData.SoilState.SEEDED or new_state == FarmData.SoilState.HARVESTABLE:
+	if exists:
 		refresh_from_data()
 		return
-
 	queue_free()

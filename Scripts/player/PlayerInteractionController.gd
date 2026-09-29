@@ -70,8 +70,7 @@ func _get_farm_tile_prompt(hit_pos: Vector3) -> String:
 	if GameManager.session == null or GameManager.session.farm == null:
 		return ""
 	var farm := GameManager.session.farm
-	var tile_data: FarmTileData = farm.get_tile_data(farm.world_to_grid(hit_pos))
-	if tile_data != null and tile_data.state == FarmData.SoilState.HARVESTABLE:
+	if farm.get_crop_near(hit_pos, 0.6, true) != null:
 		return "收获小麦 [鼠标左键 / 3]"
 	return ""
 
@@ -83,6 +82,8 @@ func try_use_tool(player: CharacterBody3D, tool: Tool) -> bool:
 	# points into the sky. Other tools retain their screen-target interaction.
 	if tool is HoeTool:
 		return player.has_method("start_hoe_action") and player.start_hoe_action(tool)
+	if tool is SeedTool or tool is HarvestTool:
+		return _try_farm_action(player, tool)
 
 	var hit := _raycast_from_screen_center(player)
 	if hit.is_empty():
@@ -90,25 +91,51 @@ func try_use_tool(player: CharacterBody3D, tool: Tool) -> bool:
 
 	var hit_pos: Vector3 = hit.get("position", Vector3.ZERO)
 	var normal: Vector3 = hit.get("normal", Vector3.UP)
-	if not tool is SeedTool and not tool is HarvestTool:
-		tool.use_tool(player, hit_pos, normal)
-		return true
-	if player.global_position.distance_to(hit_pos) > 2.5 or GameManager.session == null or GameManager.session.farm == null:
+	tool.use_tool(player, hit_pos, normal)
+	return true
+
+func _try_farm_action(player: CharacterBody3D, tool: Tool) -> bool:
+	if GameManager.session == null or GameManager.session.farm == null:
 		return false
+	var hit := _front_ground(player)
+	if hit.is_empty():
+		return false
+	var position: Vector3 = hit["position"]
 	var farm := GameManager.session.farm
-	var tile: FarmTileData = farm.get_tile_data(farm.world_to_grid(hit_pos))
-	var kind: StringName = &"Seed" if tool is SeedTool else &"Harvest"
-	if tile == null or (kind == &"Seed" and tile.state != FarmData.SoilState.PLOWED) or (kind == &"Harvest" and tile.state != FarmData.SoilState.HARVESTABLE):
+	var is_seed := tool is SeedTool
+	var target_crop := farm.get_crop_near(position, 0.6, true) if not is_seed else null
+	if (is_seed and not farm.can_plant_at(position)) or (not is_seed and target_crop == null):
 		return false
-	var collider: Object = hit["collider"]
-	var effect: Callable = func(): tool.use_tool(player, hit_pos, normal)
+	var kind: StringName = &"Seed" if is_seed else &"Harvest"
+	var effect: Callable = func(): tool.use_tool(player, position, Vector3.UP)
 	var valid: Callable = func():
-		var current := _raycast_from_screen_center(player)
-		if current.is_empty() or current.get("collider") != collider or (current["position"] as Vector3).distance_to(hit_pos) > 0.3:
+		var current := _front_ground(player)
+		if current.is_empty() or (current["position"] as Vector3).distance_to(position) > 0.15:
 			return false
-		var state: FarmTileData = farm.get_tile_data(farm.world_to_grid(hit_pos))
-		return state != null and state.state == (FarmData.SoilState.PLOWED if kind == &"Seed" else FarmData.SoilState.HARVESTABLE)
+		return farm.can_plant_at(position) if is_seed else farm.get_crop(target_crop.id) != null and target_crop.is_harvestable(farm.get_current_total_minutes())
 	return player.start_basic_action(kind, effect, valid)
+
+func _front_ground(player: CharacterBody3D) -> Dictionary:
+	var forward := -player.global_transform.basis.z.normalized()
+	var point := player.global_position + forward * 0.75
+	var query := PhysicsRayQueryParameters3D.create(point + Vector3.UP * 0.8, point - Vector3.UP * 1.5)
+	query.exclude = [player.get_rid()]
+	var hit := player.get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty() or (hit["normal"] as Vector3).dot(Vector3.UP) < 0.9 or not _is_ground(hit.get("collider")):
+		return {}
+	return hit
+
+func _is_ground(collider: Object) -> bool:
+	if not collider is Node or collider is EntityView3D or collider is CharacterBody3D or collider is RigidBody3D:
+		return false
+	var node := collider as Node
+	while node != null:
+		if node is EntityView3D or node.has_method("interact"):
+			return false
+		if node.is_in_group("terrain_node") or node.is_in_group("farmland_ground") or node.name == &"Floor" or node.is_class("Terrain3D"):
+			return true
+		node = node.get_parent()
+	return false
 
 func _raycast_from_screen_center(player: Node3D) -> Dictionary:
 	if _camera == null or not is_instance_valid(_camera):

@@ -2,7 +2,7 @@ extends Node
 
 const SAVE_ROOT := "user://Saves"
 const SLOT_PREFIX := "Slot_"
-const SAVE_VERSION := 1
+const SAVE_VERSION := 2
 const BLACKOUT_PHYSICS_FRAMES := 3
 
 func _ready() -> void:
@@ -82,6 +82,8 @@ func save_slot(slot_index: int = 1) -> bool:
 		return false
 	if not _write_json(tmp_dir.path_join("entities.json"), entities_payload):
 		return false
+	if not _write_json(farm_layers_dir.path_join("crop_instances.json"), {"version": 1, "crops": farm.export_crops()}):
+		return false
 
 	var soil_image: Image = layers.get("soil_state", null)
 	var crop_image: Image = layers.get("crop_type", null)
@@ -101,7 +103,7 @@ func save_slot(slot_index: int = 1) -> bool:
 	var exr_err: Error = planted_time_image.save_exr(farm_layers_dir.path_join("planted_time.exr"), false)
 	if exr_err != OK:
 		GameLog.warn("[SaveManager] planted_time.exr save failed, writing JSON fallback.")
-		if not _write_json(farm_layers_dir.path_join("planted_time.json"), _build_planted_time_fallback(farm, crop_to_id)):
+		if not _write_json(farm_layers_dir.path_join("planted_time.json"), {"entries": []}):
 			return false
 
 	if not _atomic_swap_slot(slot_dir, tmp_dir, bak_dir):
@@ -272,16 +274,11 @@ func _build_entities_payload() -> Dictionary:
 func _build_crop_id_table(farm: FarmData) -> Dictionary:
 	var crop_to_id := {}
 	var next_id := 1
-
-	for grid_pos_any: Variant in farm._grid.keys():
-		if grid_pos_any is not Vector2i:
+	for crop_any: Variant in farm._crops.values():
+		var crop := crop_any as CropData
+		if crop == null or crop_to_id.has(crop.crop_type):
 			continue
-		var tile: FarmTileData = farm._grid[grid_pos_any]
-		if tile == null or tile.crop_type == &"":
-			continue
-		if crop_to_id.has(tile.crop_type):
-			continue
-		crop_to_id[tile.crop_type] = next_id
+		crop_to_id[crop.crop_type] = next_id
 		next_id += 1
 		if next_id > 255:
 			break
@@ -295,34 +292,6 @@ func _invert_crop_table(crop_to_id: Dictionary) -> Dictionary:
 		var crop_id: int = int(crop_to_id[crop_key])
 		id_to_crop[str(crop_id)] = str(crop_key)
 	return id_to_crop
-
-func _build_planted_time_fallback(farm: FarmData, crop_to_id: Dictionary) -> Dictionary:
-	var entries: Array = []
-	var resolution: Vector2i = farm.get_heatmap_resolution()
-
-	for grid_pos_any: Variant in farm._grid.keys():
-		if grid_pos_any is not Vector2i:
-			continue
-		var grid_pos: Vector2i = grid_pos_any
-		var tile: FarmTileData = farm._grid[grid_pos]
-		if tile == null or tile.crop_type == &"" or not crop_to_id.has(tile.crop_type):
-			continue
-
-		var pixel: Vector2i = farm._grid_to_heatmap_pixel(grid_pos, resolution.x, resolution.y)
-		if pixel.x < 0 or pixel.y < 0:
-			continue
-
-		entries.append({
-			"x": pixel.x,
-			"y": pixel.y,
-			"t": tile.planted_at_minute
-		})
-
-	return {
-		"width": resolution.x,
-		"height": resolution.y,
-		"entries": entries
-	}
 
 func _reset_runtime_data() -> void:
 	var session: GameSession = GameManager.session
@@ -462,6 +431,7 @@ func _restore_farm_layers(slot_dir: String, crop_lookup: Dictionary) -> void:
 	var crop_path := layers_dir.path_join("crop_type.png")
 	var planted_exr_path := layers_dir.path_join("planted_time.exr")
 	var planted_json_path := layers_dir.path_join("planted_time.json")
+	var instances_path := layers_dir.path_join("crop_instances.json")
 
 	var soil_image := _load_image_or_default(soil_path, Image.FORMAT_L8, Color(0, 0, 0, 1), resolution)
 	var crop_image := _load_image_or_default(crop_path, Image.FORMAT_L8, Color(0, 0, 0, 1), resolution)
@@ -477,7 +447,11 @@ func _restore_farm_layers(slot_dir: String, crop_lookup: Dictionary) -> void:
 		planted_image = Image.create(resolution.x, resolution.y, false, Image.FORMAT_RF)
 		planted_image.fill(Color(-1.0, 0, 0, 1))
 
+	# New saves keep the soil image, but never encode individual crops into pixels.
+	# Old slots have no instances file and migrate their legacy crop heatmap once.
 	farm.import_heatmap_layers(soil_image, crop_image, planted_image, crop_lookup)
+	if FileAccess.file_exists(instances_path):
+		farm.import_crops(_read_json(instances_path).get("crops", []))
 
 func _apply_planted_time_fallback(image: Image, payload: Dictionary) -> void:
 	if image == null:
