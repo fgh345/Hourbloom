@@ -13,20 +13,19 @@ func try_interact(player: Node3D) -> bool:
 		return false
 
 	var obj: Variant = hit.get("collider")
-	
-	if obj is EntityView3D:
-		var view := obj as EntityView3D
-		if view.entity_data:
-			pass # Reserved for future pure-ECS logic
-			
-		if view.has_method("interact"):
-			view.interact(player)
-			return true
-	elif obj != null and obj.has_method("interact"):
-		obj.interact(player)
-		return true
-
-	return false
+	if not obj is Node3D or not obj.has_method("interact"):
+		return false
+	var target := obj as Node3D
+	if player.global_position.distance_to(hit["position"]) > 2.5:
+		return false
+	var kind: StringName = &"Pickup" if target is InteractableItem3D else &"Interact"
+	var effect: Callable = func():
+		if is_instance_valid(target):
+			target.interact(player)
+	var valid: Callable = func():
+		var current := _raycast_from_screen_center(player)
+		return is_instance_valid(target) and not current.is_empty() and current.get("collider") == target and player.global_position.distance_to(current["position"]) <= 2.5
+	return player.start_basic_action(kind, effect, valid)
 
 func process_hover(player: CharacterBody3D) -> void:
 	if EventBus == null:
@@ -91,8 +90,25 @@ func try_use_tool(player: CharacterBody3D, tool: Tool) -> bool:
 
 	var hit_pos: Vector3 = hit.get("position", Vector3.ZERO)
 	var normal: Vector3 = hit.get("normal", Vector3.UP)
-	tool.use_tool(player, hit_pos, normal)
-	return true
+	if not tool is SeedTool and not tool is HarvestTool:
+		tool.use_tool(player, hit_pos, normal)
+		return true
+	if player.global_position.distance_to(hit_pos) > 2.5 or GameManager.session == null or GameManager.session.farm == null:
+		return false
+	var farm := GameManager.session.farm
+	var tile: FarmTileData = farm.get_tile_data(farm.world_to_grid(hit_pos))
+	var kind: StringName = &"Seed" if tool is SeedTool else &"Harvest"
+	if tile == null or (kind == &"Seed" and tile.state != FarmData.SoilState.PLOWED) or (kind == &"Harvest" and tile.state != FarmData.SoilState.HARVESTABLE):
+		return false
+	var collider: Object = hit["collider"]
+	var effect: Callable = func(): tool.use_tool(player, hit_pos, normal)
+	var valid: Callable = func():
+		var current := _raycast_from_screen_center(player)
+		if current.is_empty() or current.get("collider") != collider or (current["position"] as Vector3).distance_to(hit_pos) > 0.3:
+			return false
+		var state: FarmTileData = farm.get_tile_data(farm.world_to_grid(hit_pos))
+		return state != null and state.state == (FarmData.SoilState.PLOWED if kind == &"Seed" else FarmData.SoilState.HARVESTABLE)
+	return player.start_basic_action(kind, effect, valid)
 
 func _raycast_from_screen_center(player: Node3D) -> Dictionary:
 	if _camera == null or not is_instance_valid(_camera):

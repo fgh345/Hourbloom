@@ -228,3 +228,7 @@ report = {'source_character': str(SOURCE.relative_to(ROOT)), 'source_hoe': 'Art/
     'impact_time': json.loads((HERE/'manifest.json').read_text())['impact_time'], 'impact_position_godot': json.loads((HERE/'manifest.json').read_text())['impact_position_godot']}
 (HERE/'runtime_manifest.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
 print('HOE_RUNTIME_REPORT', json.dumps(report, ensure_ascii=False))
+
+# Restore the ordinary farming/interaction clips after a fresh tool export.
+import runpy
+runpy.run_path(str(HERE / 'add_basic_actions.py'))

@@ -93,8 +93,46 @@ animation = &"Hoe"
 
 [sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_hoe_action"]
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_seed"]
+animation = &"Seed"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_harvest"]
+animation = &"Harvest"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_pickup"]
+animation = &"Pickup"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_drop"]
+animation = &"Drop"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_interact"]
+animation = &"Interact"
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_basic"]
+xfade_time = 0.02
+input_0/name = "Seed"
+input_1/name = "Harvest"
+input_2/name = "Pickup"
+input_3/name = "Drop"
+input_4/name = "Interact"
+
+[sub_resource type="AnimationNodeTimeSeek" id="AnimationNodeTimeSeek_basic"]
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_basic"]
+
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_nn08x"]
-nodes/output/position = Vector2(1560, 208)
+nodes/output/position = Vector2(1860, 208)
+nodes/basic_action_blend/node = SubResource("AnimationNodeBlend2_basic")
+nodes/basic_action_blend/position = Vector2(1560, 208)
+nodes/basic_action_seek/node = SubResource("AnimationNodeTimeSeek_basic")
+nodes/basic_action_seek/position = Vector2(1260, 560)
+nodes/basic_action/node = SubResource("AnimationNodeTransition_basic")
+nodes/basic_action/position = Vector2(960, 900)
+nodes/seed/node = SubResource("AnimationNodeAnimation_seed")
+nodes/harvest/node = SubResource("AnimationNodeAnimation_harvest")
+nodes/pickup/node = SubResource("AnimationNodeAnimation_pickup")
+nodes/drop/node = SubResource("AnimationNodeAnimation_drop")
+nodes/interact/node = SubResource("AnimationNodeAnimation_interact")
 nodes/hoe/node = SubResource("AnimationNodeAnimation_hoe")
 nodes/hoe/position = Vector2(688, 680)
 nodes/hoe_action_seek/node = SubResource("AnimationNodeTimeSeek_hoe")
@@ -135,7 +173,7 @@ nodes/recoil/node = SubResource("AnimationNodeAnimation_landing_recoil")
 nodes/recoil/position = Vector2(416, 16)
 nodes/landing_recoil/node = SubResource("AnimationNodeOneShot_landing_recoil")
 nodes/landing_recoil/position = Vector2(688, 208)
-node_connections = [&"output", 0, &"hoe_action_blend", &"hoe_action_blend", 0, &"landing_recoil", &"hoe_action_blend", 1, &"hoe_action_seek", &"hoe_action_seek", 0, &"hoe", &"landing_recoil", 0, &"movement", &"landing_recoil", 1, &"recoil", &"movement", 0, &"Idle", &"movement", 1, &"walk_speed", &"movement", 2, &"run_lean", &"movement", 3, &"fall_style", &"movement", 4, &"land_soft", &"movement", 5, &"jump_style", &"jump_style", 0, &"Animation 4", &"jump_style", 1, &"jump_move", &"fall_style", 0, &"Animation 3", &"fall_style", 1, &"fall_move", &"walk_speed", 0, &"Walk", &"run_lean", 0, &"Animation", &"run_lean", 1, &"run", &"run_lean", 2, &"Animation 2"]
+node_connections = [&"output", 0, &"basic_action_blend", &"basic_action_blend", 0, &"hoe_action_blend", &"basic_action_blend", 1, &"basic_action_seek", &"basic_action_seek", 0, &"basic_action", &"basic_action", 0, &"seed", &"basic_action", 1, &"harvest", &"basic_action", 2, &"pickup", &"basic_action", 3, &"drop", &"basic_action", 4, &"interact", &"hoe_action_blend", 0, &"landing_recoil", &"hoe_action_blend", 1, &"hoe_action_seek", &"hoe_action_seek", 0, &"hoe", &"landing_recoil", 0, &"movement", &"landing_recoil", 1, &"recoil", &"movement", 0, &"Idle", &"movement", 1, &"walk_speed", &"movement", 2, &"run_lean", &"movement", 3, &"fall_style", &"movement", 4, &"land_soft", &"movement", 5, &"jump_style", &"jump_style", 0, &"Animation 4", &"jump_style", 1, &"jump_move", &"fall_style", 0, &"Animation 3", &"fall_style", 1, &"fall_move", &"walk_speed", 0, &"Walk", &"run_lean", 0, &"Animation", &"run_lean", 1, &"run", &"run_lean", 2, &"Animation 2"]
 
 [node name="Player" type="CharacterBody3D" unique_id=894416653]
 script = ExtResource("1_player_gd")
@@ -176,3 +214,6 @@ parameters/fall_style/blend_amount = 0.0
 parameters/landing_recoil/request = 0
 parameters/hoe_action_blend/blend_amount = 0.0
 parameters/hoe_action_seek/seek_request = -1.0
+parameters/basic_action/transition_request = "Seed"
+parameters/basic_action_blend/blend_amount = 0.0
+parameters/basic_action_seek/seek_request = -1.0

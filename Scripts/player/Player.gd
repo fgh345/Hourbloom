@@ -51,6 +51,7 @@ var _tool_inventory: RefCounted = preload("res://Scripts/player/PlayerToolInvent
 var _interaction_controller: RefCounted
 var _movement_controller: RefCounted
 var _hoe_controller: RefCounted
+var _basic_action_controller: RefCounted
 var _camera_controller: OrbitCameraController
 var _hero_base_yaw: float = 0.0
 var _hover_frame_count: int = 0
@@ -84,6 +85,7 @@ func _ready() -> void:
 		_movement_controller.prime_animation_tree()
 
 	_hoe_controller = preload("res://Scripts/player/PlayerHoeController.gd").new(self, hero_mesh, Anim_tree)
+	_basic_action_controller = preload("res://Scripts/player/PlayerBasicActionController.gd").new(self, hero_mesh, Anim_tree)
 	visibility_changed.connect(_on_player_visibility_changed)
 
 	# TERRAIN3D COLLISION FIX
@@ -110,7 +112,7 @@ func _input(event: InputEvent) -> void:
 	if GameInput.is_gameplay_input_blocked(get_tree()):
 		return
 
-	if is_hoe_action_active():
+	if is_action_active():
 		return
 
 	if event is InputEventKey:
@@ -146,7 +148,8 @@ func _input(event: InputEvent) -> void:
 		
 	# Test Drop (using 'G' for now as there is no UI yet)
 	if event is InputEventKey and event.keycode == KEY_G and event.pressed and not event.is_echo():
-		drop_item(0) # Drops first item in pockets for testing
+		if _player_data != null and _player_data.pockets.entity_ids.size() > 0:
+			start_basic_action(&"Drop", func(): drop_item(0))
 
 ## UESS Drop: removes entity from inventory, clears parent, sets position.
 ## StreamSpooler automatically detects the entity in the spatial chunk and spawns its 3D view.
@@ -183,6 +186,7 @@ func drop_item(index: int) -> void:
 
 func toggle_godmode() -> bool:
 	cancel_hoe_action()
+	cancel_basic_action()
 	is_godmode = not is_godmode
 	if is_godmode:
 		collision_layer = 0
@@ -198,6 +202,7 @@ func _physics_process(delta: float) -> void:
 	
 	if GameInput.is_gameplay_input_blocked(get_tree()):
 		cancel_hoe_action()
+		cancel_basic_action()
 		_publish_player_state_to_simulation_core()
 		return
 
@@ -206,12 +211,14 @@ func _physics_process(delta: float) -> void:
 	else:
 		_movement_controller.process_movement(
 			delta,
-			not is_hoe_action_active(),
+			not is_action_active(),
 			Basis(Vector3.UP, _camera_controller.get_yaw_global())
 		)
 
 	if _hoe_controller != null:
 		_hoe_controller.update(delta, _tool_inventory.get_active_tool() is HoeTool)
+	if _basic_action_controller != null:
+		_basic_action_controller.update(delta)
 
 	_hover_frame_count += 1
 	if _hover_frame_count >= hover_ray_interval_frames:
@@ -261,7 +268,7 @@ func _refresh_tool_ui() -> void:
 	EventBus.player_tool_equipped.emit(_tool_inventory.get_active_tool_name())
 
 func start_hoe_action(tool: HoeTool) -> bool:
-	if _hoe_controller == null or _tool_inventory.get_active_tool() != tool:
+	if _hoe_controller == null or is_action_active() or _tool_inventory.get_active_tool() != tool:
 		return false
 	return _hoe_controller.start(tool)
 
@@ -272,10 +279,24 @@ func cancel_hoe_action() -> void:
 	if _hoe_controller != null:
 		_hoe_controller.cancel()
 
+func start_basic_action(kind: StringName, effect: Callable, valid: Callable = Callable()) -> bool:
+	if _basic_action_controller == null or is_action_active():
+		return false
+	return _basic_action_controller.start(kind, effect, valid)
+
+func is_action_active() -> bool:
+	return is_hoe_action_active() or (_basic_action_controller != null and _basic_action_controller.is_active())
+
+func cancel_basic_action() -> void:
+	if _basic_action_controller != null:
+		_basic_action_controller.cancel()
+
 func _on_player_visibility_changed() -> void:
 	if not is_visible_in_tree():
 		cancel_hoe_action()
+		cancel_basic_action()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_DISABLED or what == NOTIFICATION_PAUSED:
 		cancel_hoe_action()
+		cancel_basic_action()
