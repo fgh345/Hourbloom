@@ -87,6 +87,7 @@ func verify() -> void:
 	check(calls == before_effect_cancel + 1 and not player.is_action_active(), "Visibility cancellation during effect releases action")
 	player.visible = true
 	var farm = root.get_node("GameManager").session.farm
+	check(farm.world_to_grid(Vector3(0.75, 0, -0.25)) == Vector2i(0, -1), "Tile lookup matches the visible tile center")
 	var target := Vector3(0, 0, -1)
 	var tile: Vector2i = farm.world_to_grid(target)
 	farm.set_tile_state(tile, PLOWED, 0.0)
@@ -96,7 +97,16 @@ func verify() -> void:
 	check(farm.get_tile_data(tile).state == PLOWED, "Soil unchanged during seed windup")
 	await ticks(45)
 	check(farm.get_tile_data(tile).state == SEEDED, "Seed commits at contact")
+	var adjacent_target := target + Vector3.RIGHT
+	var adjacent_tile: Vector2i = farm.world_to_grid(adjacent_target)
+	farm.set_tile_state(adjacent_tile, PLOWED, 0.0)
+	check(player.start_basic_action(&"Seed", func(): seed.use_tool(player, adjacent_target, Vector3.UP)), "Seed adjacent tile")
+	await ticks(45)
+	check(farm.get_tile_data(adjacent_tile).state == SEEDED and farm.get_tile_data(tile).state == SEEDED, "Adjacent crops coexist")
+	root.get_node("GameManager").session.time.set_total_minutes(maxi(farm.get_current_total_minutes(), 1))
 	farm.get_tile_data(tile).state = HARVESTABLE
+	farm.get_tile_data(tile).growth_minutes_required = 1
+	farm.get_tile_data(tile).planted_at_minute = farm.get_current_total_minutes() - 1
 	var harvest: Tool = player._tool_inventory._tools[2]
 	check(player.start_basic_action(&"Harvest", func(): harvest.use_tool(player, target, Vector3.UP)), "Harvest through action clock")
 	await ticks(12)

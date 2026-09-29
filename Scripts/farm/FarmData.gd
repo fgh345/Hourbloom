@@ -36,7 +36,8 @@ func tick(_delta: float) -> void:
 	pass
 
 func world_to_grid(world_pos: Vector3) -> Vector2i:
-	return Vector2i(round(world_pos.x), round(world_pos.z))
+	# A tile covers [x, x + 1) by [z, z + 1); visuals use its +0.5 center.
+	return Vector2i(floori(world_pos.x), floori(world_pos.z))
 
 func grid_to_world_center(grid_pos: Vector2i) -> Vector2:
 	# Currently 1 tile = 1 meter, so the center is +0.5
@@ -478,7 +479,7 @@ func _heatmap_pixel_to_grid(pixel: Vector2i, width: int, height: int) -> Vector2
 	var world_x: float = world_center.x - half_size + ((float(pixel.x) + 0.5) / float(safe_width)) * world_size
 	var world_z: float = world_center.y - half_size + ((float(pixel.y) + 0.5) / float(safe_height)) * world_size
 
-	return Vector2i(int(round(world_x - 0.5)), int(round(world_z - 0.5)))
+	return world_to_grid(Vector3(world_x, 0.0, world_z))
 
 func export_heatmap_layers(crop_to_id: Dictionary) -> Dictionary:
 	var resolution: Vector2i = get_heatmap_resolution()
