@@ -10,6 +10,13 @@ func add_tool(tool: Tool) -> void:
 	if _active_index == -1:
 		_active_index = 0
 
+func clear_tools() -> void:
+	for tool in _tools:
+		if is_instance_valid(tool):
+			tool.free()
+	_tools.clear()
+	_active_index = -1
+
 func equip_slot(slot_number: int) -> bool:
 	var index := slot_number - 1
 	if index < 0 or index >= _tools.size():

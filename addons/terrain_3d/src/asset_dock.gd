@@ -142,6 +142,8 @@ func _gui_input(p_event: InputEvent) -> void:
 
 func remove_dock(p_force: bool = false) -> void:
 	plugin.remove_dock(_dock)
+	_dock.remove_child(self)
+	_dock.queue_free()
 
 
 func update_dock() -> void:

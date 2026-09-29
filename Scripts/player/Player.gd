@@ -97,6 +97,11 @@ func _ready() -> void:
 	_refresh_tool_ui()
 	_publish_player_state_to_simulation_core()
 
+func _exit_tree() -> void:
+	cancel_hoe_action()
+	cancel_basic_action()
+	_tool_inventory.clear_tools()
+
 func _unhandled_input(event: InputEvent) -> void:
 	# Godot callback: handles input not consumed elsewhere; processes mouse-look.
 	
