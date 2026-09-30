@@ -37,13 +37,16 @@ func _ready() -> void:
 		var crop := CropData.new()
 		crop.crop_type = species
 		crop.shape_seed = 42 + index * 17
-		var view := MeshInstance3D.new()
-		view.mesh = CropVisualBuilder.new().build(crop, stages[index])
+		var view := Node3D.new()
 		if species == &"watermelon":
 			view.position = Vector3((index % 2) * 8.0, 0, floori(float(index) / 2.0) * 8.0)
 		else:
 			view.position = Vector3(index * 1.8, 0, 0)
 		add_child(view)
+		var rig := CropVisualRig.new()
+		rig.initialize(view, crop, true, func(_point: Vector3): return 0.0)
+		rig.update(crop, stages[index])
+		rig.pose(0.65, stages[index], Basis.IDENTITY)
 		var label := Label3D.new()
 		label.text = "%d%%" % int(stages[index] * 100)
 		label.font_size = 48
