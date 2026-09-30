@@ -34,6 +34,7 @@ func _ready() -> void:
 	slot_spinbox.value_changed.connect(_on_slot_changed)
 	_update_pause_status("", false)
 
+	_add_component(top_left, preload("res://Scenes/UI/FpsUI.tscn"))
 	_add_component(top_right, preload("res://Scenes/UI/TimeUI.tscn"))
 	_add_component(bottom_left, preload("res://Scenes/UI/ToolUI.tscn"))
 	_add_component(center_container, preload("res://Scenes/UI/HelpUI.tscn"))
