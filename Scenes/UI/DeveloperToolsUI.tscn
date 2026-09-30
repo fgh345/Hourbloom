@@ -93,3 +93,45 @@ text = "影响昼夜、植物生长及其他游戏时间系统。\n角色移动�
 unique_name_in_owner = true
 layout_mode = 2
 text = "恢复默认：现实 1 秒＝游戏 1 分钟"
+
+
+[node name="PerfSeparator" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="PerfHeading" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "性能隔离测试"
+
+[node name="PerfHint" type="Label" parent="."]
+layout_mode = 2
+autowrap_mode = 3
+text = "逐项关闭后退出暂停菜单，观察左上角 FPS / CPU。一次只关一项，方便判断差异。"
+
+[node name="PerfAnimationToggle" type="CheckButton" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "角色 AnimationTree"
+
+[node name="PerfPlayerPhysicsToggle" type="CheckButton" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Player 物理更新"
+
+[node name="PerfGridProcessToggle" type="CheckButton" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "GridManager 更新"
+
+[node name="PerfResetButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "恢复全部性能测试项"
+
+[node name="PerfStatus" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
