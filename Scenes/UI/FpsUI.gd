@@ -22,13 +22,17 @@ func _refresh() -> void:
 	var rendered_objects := int(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME))
 	var primitives := int(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME))
 	var video_mem_mb := float(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED)) / (1024.0 * 1024.0)
+	var node_count := int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
+	var resource_count := int(Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT))
 
-	fps_label.text = "FPS: %s\nCPU: %.2f ms  Physics: %.2f ms\nDraw Calls: %d  Objects: %d\nPrimitives: %d\nVideo Mem: %.1f MB" % [
+	fps_label.text = "FPS: %s\nCPU: %.2f ms  Physics: %.2f ms\nDraw Calls: %d  Objects: %d\nPrimitives: %d\nVideo Mem: %.1f MB\nNodes: %d  Resources: %d" % [
 		str(fps) if fps > 0 else "--",
 		process_ms,
 		physics_ms,
 		draw_calls,
 		rendered_objects,
 		primitives,
-		video_mem_mb
+		video_mem_mb,
+		node_count,
+		resource_count
 	]
