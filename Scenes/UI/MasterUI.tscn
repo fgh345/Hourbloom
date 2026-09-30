@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://cx6i2qwk2x7l2"]
+[gd_scene load_steps=3 format=3 uid="uid://cx6i2qwk2x7l2"]
 
 [ext_resource type="Script" path="res://Scenes/UI/MasterUI.gd" id="1_m1s7"]
+
+[ext_resource type="PackedScene" path="res://Scenes/UI/DeveloperToolsUI.tscn" id="2_dev"]
 
 [node name="MasterUI" type="CanvasLayer"]
 layer = 10
@@ -119,15 +121,20 @@ theme_override_font_sizes/font_size = 30
 text = "游戏暂停"
 horizontal_alignment = 1
 
-[node name="SlotRow" type="HBoxContainer" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox"]
+[node name="MainPage" type="VBoxContainer" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SlotRow" type="HBoxContainer" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/MainPage"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="SlotLabel" type="Label" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/SlotRow"]
+[node name="SlotLabel" type="Label" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/MainPage/SlotRow"]
 layout_mode = 2
 text = "存档槽位"
 
-[node name="SlotSpinBox" type="SpinBox" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/SlotRow"]
+[node name="SlotSpinBox" type="SpinBox" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/MainPage/SlotRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
@@ -137,32 +144,51 @@ step = 1.0
 value = 1.0
 rounded = true
 
-[node name="SlotMetaLabel" type="Label" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox"]
+[node name="SlotMetaLabel" type="Label" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/MainPage"]
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 3
 text = "槽位 01：空"
 
-[node name="Separator" type="HSeparator" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox"]
+[node name="Separator" type="HSeparator" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/MainPage"]
 layout_mode = 2
 
-[node name="SaveButton" type="Button" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox"]
+[node name="SaveButton" type="Button" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/MainPage"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "保存游戏"
 
-[node name="LoadButton" type="Button" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox"]
+[node name="LoadButton" type="Button" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/MainPage"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "读取游戏"
 
-[node name="ResumeButton" type="Button" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox"]
+[node name="SettingsButton" type="Button" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/MainPage"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "设置"
+
+[node name="ResumeButton" type="Button" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/MainPage"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "继续游戏"
 
-[node name="PauseStatusLabel" type="Label" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox"]
+[node name="PauseStatusLabel" type="Label" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/MainPage"]
 unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 3
 text = ""
+
+[node name="SettingsPage" type="VBoxContainer" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DeveloperToolsUI" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/SettingsPage" instance=ExtResource("2_dev")]
+layout_mode = 2
+
+[node name="SettingsBackButton" type="Button" parent="PauseOverlay/CenterContainer/PausePanel/Margin/VBox/SettingsPage"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "返回暂停菜单"

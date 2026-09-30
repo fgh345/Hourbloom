@@ -13,6 +13,10 @@ extends CanvasLayer
 @onready var save_button: Button = %SaveButton
 @onready var load_button: Button = %LoadButton
 @onready var resume_button: Button = %ResumeButton
+@onready var settings_button: Button = %SettingsButton
+@onready var settings_back_button: Button = %SettingsBackButton
+@onready var main_page: VBoxContainer = %MainPage
+@onready var settings_page: VBoxContainer = %SettingsPage
 
 var _debug_overlay: Node = null
 var _was_mouse_captured_before_pause := false
@@ -25,6 +29,8 @@ func _ready() -> void:
 	save_button.pressed.connect(_on_save_pressed)
 	load_button.pressed.connect(_on_load_pressed)
 	resume_button.pressed.connect(_on_resume_pressed)
+	settings_button.pressed.connect(_open_settings)
+	settings_back_button.pressed.connect(_close_settings)
 	slot_spinbox.value_changed.connect(_on_slot_changed)
 	_update_pause_status("", false)
 
@@ -63,7 +69,10 @@ func _input(event: InputEvent) -> void:
 
 	if GameInput.is_pause_menu_toggle_event(event):
 		if pause_overlay.visible:
-			_close_pause_menu()
+			if settings_page.visible:
+				_close_settings()
+			else:
+				_close_pause_menu()
 		else:
 			_open_pause_menu()
 		get_viewport().set_input_as_handled()
@@ -77,6 +86,8 @@ func _input(event: InputEvent) -> void:
 func _open_pause_menu() -> void:
 	if _menu_busy:
 		return
+	main_page.show()
+	settings_page.hide()
 	pause_overlay.show()
 	_menu_busy = false
 	_was_mouse_captured_before_pause = Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED
@@ -97,6 +108,7 @@ func _set_menu_busy(is_busy: bool) -> void:
 	_menu_busy = is_busy
 	save_button.disabled = is_busy
 	load_button.disabled = is_busy
+	settings_button.disabled = is_busy
 	slot_spinbox.editable = not is_busy
 
 func _update_pause_metadata_preview() -> void:
@@ -164,3 +176,16 @@ func _on_load_pressed() -> void:
 
 func _on_resume_pressed() -> void:
 	_close_pause_menu()
+
+func _open_settings() -> void:
+	if _menu_busy:
+		return
+	main_page.hide()
+	settings_page.show()
+	settings_page.get_node("DeveloperToolsUI").refresh()
+	settings_back_button.grab_focus()
+
+func _close_settings() -> void:
+	settings_page.hide()
+	main_page.show()
+	settings_button.grab_focus()

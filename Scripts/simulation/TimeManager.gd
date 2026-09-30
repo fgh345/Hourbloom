@@ -20,17 +20,16 @@ func tick(delta: float) -> void:
 	_internal_timer += delta * time_multiplier
 	
 	# Once our internal timer hits 60 (1 in-game minute)
-	if _internal_timer >= 60.0:
+	while _internal_timer >= 60.0:
 		_internal_timer -= 60.0
 		_advance_minute()
 
 func _advance_minute() -> void:
 	current_minute += 1
-	emit_signal("minute_passed")
-	
 	if current_minute >= 60:
 		current_minute = 0
 		_advance_hour()
+	emit_signal("minute_passed")
 
 func _advance_hour() -> void:
 	current_hour += 1

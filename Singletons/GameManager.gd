@@ -3,6 +3,7 @@ extends Node
 ## The single Autoload that holds the active GameSession
 
 var session: GameSession = null
+var developer_settings := DeveloperSettings.new()
 
 func _enter_tree() -> void:
     # Ensure there is always a session available immediately when the game boots
@@ -15,6 +16,13 @@ func _process(delta: float) -> void:
 
 func start_new_game() -> void:
     session = GameSession.new()
+    session.time.time_multiplier = developer_settings.minutes_per_second * 60.0
 
 func end_game() -> void:
     session = null
+
+func set_time_minutes_per_second(rate: float) -> Error:
+    var error := developer_settings.set_minutes_per_second(rate)
+    if error != ERR_INVALID_PARAMETER and session != null:
+        session.time.time_multiplier = developer_settings.minutes_per_second * 60.0
+    return error

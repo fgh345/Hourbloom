@@ -1,0 +1,82 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scenes/UI/DeveloperToolsUI.gd" id="1"]
+
+[node name="DeveloperToolsUI" type="VBoxContainer"]
+script = ExtResource("1")
+theme_override_constants/separation = 12
+
+[node name="Heading" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "开发者工具"
+
+[node name="TimeHeading" type="Label" parent="."]
+layout_mode = 2
+text = "时间流速"
+
+[node name="TimeRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Prefix" type="Label" parent="TimeRow"]
+layout_mode = 2
+text = "现实 1 秒 ＝ 游戏"
+
+[node name="TimeRateSpinBox" type="SpinBox" parent="TimeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+min_value = 0.1
+max_value = 60.0
+step = 0.1
+value = 1.0
+update_on_text_changed = false
+
+[node name="Suffix" type="Label" parent="TimeRow"]
+layout_mode = 2
+text = "分钟"
+
+[node name="Presets" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Rate1Button" type="Button" parent="Presets"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "1 分钟"
+
+[node name="Rate10Button" type="Button" parent="Presets"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "10 分钟"
+
+[node name="Rate30Button" type="Button" parent="Presets"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "30 分钟"
+
+[node name="Rate60Button" type="Button" parent="Presets"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "60 分钟"
+
+[node name="TimeRateSummary" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="TimeRateStatus" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Effects" type="Label" parent="."]
+layout_mode = 2
+autowrap_mode = 3
+text = "影响昼夜、植物生长及其他游戏时间系统。\n角色移动和动作速度保持正常。"
+
+[node name="DefaultTimeRateButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "恢复默认：现实 1 秒＝游戏 1 分钟"
