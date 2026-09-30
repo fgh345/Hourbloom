@@ -36,6 +36,11 @@ addons/**/build/
 addons/**/bin/
 addons/**/.build/
 
+# Terrain3D needs native libraries to load its classes on Linux.
+!addons/terrain_3d/bin/
+!addons/terrain_3d/bin/libterrain.linux.debug.x86_64.so
+!addons/terrain_3d/bin/libterrain.linux.release.x86_64.so
+
 # Explicitly keep common addon source/config/resources
 !addons/**/*.gd
 !addons/**/*.gdshader
@@ -53,3 +58,4 @@ Assets/*.png
 
 **/exported
 .export-to-txt.*
+/addons/godot_mcp_toolkit

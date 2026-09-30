@@ -77,5 +77,5 @@ albedo_texture = ExtResource("12_o7uno")
 normal_texture = ExtResource("13_iqvvf")
 
 [resource]
-mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_7je72")])
-texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_ebdvq"), SubResource("Terrain3DTextureAsset_q8u4s"), SubResource("Terrain3DTextureAsset_s52mk"), SubResource("Terrain3DTextureAsset_uk08s"), SubResource("Terrain3DTextureAsset_3w1oi"), SubResource("Terrain3DTextureAsset_5t7k0"), SubResource("Terrain3DTextureAsset_dqcu4"), SubResource("Terrain3DTextureAsset_f41p3")])
+mesh_list = [SubResource("Terrain3DMeshAsset_7je72")]
+texture_list = [SubResource("Terrain3DTextureAsset_ebdvq"), SubResource("Terrain3DTextureAsset_q8u4s"), SubResource("Terrain3DTextureAsset_s52mk"), SubResource("Terrain3DTextureAsset_uk08s"), SubResource("Terrain3DTextureAsset_3w1oi"), SubResource("Terrain3DTextureAsset_5t7k0"), SubResource("Terrain3DTextureAsset_dqcu4"), SubResource("Terrain3DTextureAsset_f41p3")]
