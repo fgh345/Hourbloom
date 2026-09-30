@@ -23,7 +23,6 @@ EventBus="*res://Singletons/EventBus.gd"
 ItemRegistry="*res://Scripts/simulation/ItemRegistry.gd"
 EntityRegistry="*res://Scripts/core/EntityRegistry.gd"
 SaveManager="*res://Singletons/SaveManager.gd"
-MCPRuntimeServer="*res://addons/godot_mcp_toolkit/runtime/mcp_runtime_server.gd"
 
 [debug]
 
