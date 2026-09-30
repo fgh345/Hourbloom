@@ -25,6 +25,9 @@ func _ready() -> void:
 	if enable_chunk_streaming:
 		_bind_stream_target()
 		_update_streamed_chunks(true)
+	else:
+		for entry: Dictionary in GameManager.session.farm.export_crops():
+			_ensure_crop_node(int(entry["id"]))
 
 func _exit_tree() -> void:
 	if enable_chunk_streaming:
@@ -60,9 +63,11 @@ func _update_streamed_chunks(force_refresh: bool = false) -> void:
 		return
 
 	var center_chunk := GameManager.session.farm.world_to_chunk(_stream_target.global_position)
+	# Load an extra root-chunk ring so vines remain visible across the boundary.
+	var visual_radius := streamed_chunk_radius + ceili(CropSpecies.MAX_SPREAD / GameManager.session.farm.simulation_chunk_size_tiles)
 	var desired_chunks: Dictionary = {}
-	for y in range(-streamed_chunk_radius, streamed_chunk_radius + 1):
-		for x in range(-streamed_chunk_radius, streamed_chunk_radius + 1):
+	for y in range(-visual_radius, visual_radius + 1):
+		for x in range(-visual_radius, visual_radius + 1):
 			desired_chunks[center_chunk + Vector2i(x, y)] = true
 
 	if not force_refresh and _chunk_sets_equal(desired_chunks, _currently_loaded_chunks):
@@ -184,18 +189,12 @@ func rebuild_farm_visuals_after_load() -> void:
 	_rebuild_crop_nodes_for_loaded_chunks()
 
 func _on_crop_updated(crop_id: int, exists: bool) -> void:
-	var structure_change := not exists or not _crop_nodes_by_grid.has(crop_id)
 	if not exists:
 		_remove_crop_node(crop_id)
 	else:
 		var crop := GameManager.session.farm.get_crop(crop_id)
-		if crop != null and _currently_loaded_chunks.has(GameManager.session.farm.world_to_chunk(crop.position)):
+		if crop != null and (not enable_chunk_streaming or _currently_loaded_chunks.has(GameManager.session.farm.world_to_chunk(crop.position))):
 			_ensure_crop_node(crop_id)
-	# A new neighbor may reduce another plant's visible canopy.
-	if structure_change:
-		for node_any: Variant in _crop_nodes_by_grid.values():
-			if is_instance_valid(node_any) and node_any.has_method("refresh_from_data"):
-				node_any.refresh_from_data()
 
 func _spawn_crop_nodes_for_chunk(chunk_pos: Vector2i) -> void:
 	for crop_id: int in GameManager.session.farm.get_chunk_crop_ids(chunk_pos):
@@ -213,6 +212,10 @@ func _despawn_crop_nodes_for_chunk(chunk_pos: Vector2i) -> void:
 
 func _rebuild_crop_nodes_for_loaded_chunks() -> void:
 	_clear_all_crop_nodes()
+	if not enable_chunk_streaming:
+		for entry: Dictionary in GameManager.session.farm.export_crops():
+			_ensure_crop_node(int(entry["id"]))
+		return
 	for chunk_pos_any: Variant in _currently_loaded_chunks.keys():
 		if chunk_pos_any is Vector2i:
 			_spawn_crop_nodes_for_chunk(chunk_pos_any)

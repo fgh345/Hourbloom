@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/interactables/CropHarvestItem.gd" id="1"]
+
+[sub_resource type="SphereShape3D" id="shape"]
+radius = 0.14
+
+[node name="SunflowerHarvest" type="RigidBody3D"]
+script = ExtResource("1")
+species = &"sunflower"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("shape")

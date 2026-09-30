@@ -70,8 +70,9 @@ func _get_farm_tile_prompt(hit_pos: Vector3) -> String:
 	if GameManager.session == null or GameManager.session.farm == null:
 		return ""
 	var farm := GameManager.session.farm
-	if farm.get_crop_near(hit_pos, 0.6, true) != null:
-		return "收获小麦 [鼠标左键 / 3]"
+	var crop := farm.get_crop_near(hit_pos, 0.6, true)
+	if crop != null:
+		return "收获%s [鼠标左键 / 3]" % CropSpecies.display_name(crop.crop_type)
 	return ""
 
 func try_use_tool(player: CharacterBody3D, tool: Tool) -> bool:
@@ -104,7 +105,7 @@ func _try_farm_action(player: CharacterBody3D, tool: Tool) -> bool:
 	var farm := GameManager.session.farm
 	var is_seed := tool is SeedTool
 	var target_crop := farm.get_crop_near(position, 0.6, true) if not is_seed else null
-	if (is_seed and not farm.can_plant_at(position)) or (not is_seed and target_crop == null):
+	if (is_seed and not (tool as SeedTool).can_plant_at(position)) or (not is_seed and target_crop == null):
 		return false
 	var kind: StringName = &"Seed" if is_seed else &"Harvest"
 	var effect: Callable = func(): tool.use_tool(player, position, Vector3.UP)
@@ -112,7 +113,7 @@ func _try_farm_action(player: CharacterBody3D, tool: Tool) -> bool:
 		var current := _front_ground(player)
 		if current.is_empty() or (current["position"] as Vector3).distance_to(position) > 0.15:
 			return false
-		return farm.can_plant_at(position) if is_seed else farm.get_crop(target_crop.id) != null and target_crop.is_harvestable(farm.get_current_total_minutes())
+		return (tool as SeedTool).can_plant_at(position) if is_seed else farm.get_crop_near(position, 0.6, true) == target_crop
 	return player.start_basic_action(kind, effect, valid)
 
 func _front_ground(player: CharacterBody3D) -> Dictionary:

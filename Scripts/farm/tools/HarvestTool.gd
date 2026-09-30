@@ -2,10 +2,8 @@ extends Tool
 
 class_name HarvestTool
 
-const WHEAT_DEF_ID := &"item.wheat"
-
 func _init() -> void:
-	tool_name = "镰刀（收获作物）"
+	tool_name = "采收（向日葵 / 单个西瓜）"
 
 func use_tool(player: CharacterBody3D, block_pos: Vector3, _normal: Vector3) -> void:
 	if GameManager.session == null or GameManager.session.farm == null:
@@ -13,6 +11,9 @@ func use_tool(player: CharacterBody3D, block_pos: Vector3, _normal: Vector3) -> 
 	if GameManager.session.entities == null:
 		return
 
+	var player_data := GameManager.session.entities.get_player(_resolve_player_id(player))
+	if player_data == null:
+		return
 	var farm := GameManager.session.farm
 	var crop := farm.get_crop_near(block_pos, 0.6, true)
 	if crop == null:
@@ -22,50 +23,50 @@ func use_tool(player: CharacterBody3D, block_pos: Vector3, _normal: Vector3) -> 
 			GameLog.info("[工具] 这里没有可收获的作物。")
 		return
 
-	# 收获地块：清作物、回 PLOWED，并经由 tile_updated 自动刷掉作物模型与土壤贴图。
-	var harvest: Dictionary = _harvest_at(player, crop.id)
+	if not EntityRegistry.has_def(CropSpecies.item_id(crop.crop_type)):
+		GameLog.warn("[工具] 缺少收获物品定义，保留作物。")
+		return
+
+	# 按地面位置采摘一个成熟目标；西瓜藤蔓保留。
+	var harvest: Dictionary = farm.harvest_at(block_pos)
 	if harvest.is_empty():
 		GameLog.info("[工具] 收获失败。")
 		return
 
 	var yield_count: int = maxi(1, int(harvest.get("yield", 1)))
-	_give_yield_to_player(player, yield_count)
-
-## 经由土壤服务收获（优先走服务，便于统一刷 Terrain 贴图与后续特效钩子）。
-func _harvest_at(_player: CharacterBody3D, crop_id: int) -> Dictionary:
-	return GameManager.session.farm.harvest_crop_id(crop_id)
+	_give_yield_to_player(player, yield_count, StringName(harvest.get("crop_type", "sunflower")))
 
 ## 产量进背包；背包满则掉在脚边，保证不丢作物。
-func _give_yield_to_player(player: CharacterBody3D, yield_count: int) -> void:
+func _give_yield_to_player(player: CharacterBody3D, yield_count: int, species: StringName) -> void:
 	var em := GameManager.session.entities as EntityManager
 	var registry: Node = Engine.get_main_loop().root.get_node(^"EntityRegistry")
 	if registry == null or not registry.has_method("create_entity"):
 		GameLog.warn("[工具] EntityRegistry 不可用，收获丢失。")
 		return
 
-	var wheat: EntityData = registry.create_entity(WHEAT_DEF_ID)
-	if wheat == null:
-		GameLog.warn("[工具] 无法创建小麦实体，收获丢失。")
+	var harvested_item: EntityData = registry.create_entity(CropSpecies.item_id(species))
+	if harvested_item == null:
+		GameLog.warn("[工具] 无法创建收获实体，收获丢失。")
 		return
-	var stack_comp := wheat.get_component(&"stackable") as StackableComponent
+	var stack_comp := harvested_item.get_component(&"stackable") as StackableComponent
 	if stack_comp != null:
 		stack_comp.count = yield_count
-	em.register_entity(wheat)
+	em.register_entity(harvested_item)
 
 	var player_data: PlayerData = em.get_player(_resolve_player_id(player))
-	var absorbed: int = player_data.pockets.try_add_entity(wheat.runtime_id)
+	var absorbed: int = player_data.pockets.try_add_entity(harvested_item.runtime_id)
 	if absorbed <= 0:
 		var drop_pos: Vector3 = player.global_position + (-player.global_transform.basis.z * 1.5) + Vector3.UP * 1.0
-		em.clear_entity_parent(wheat.runtime_id, drop_pos, player.rotation.y)
-		GameLog.warn("[工具] 背包满了，小麦掉在地上。")
+		em.clear_entity_parent(harvested_item.runtime_id, drop_pos, player.rotation.y)
+		GameLog.warn("[工具] 背包满了，作物掉在地上。")
 		return
 
-	if player_data.pockets.has_entity(wheat.runtime_id):
-		em.set_entity_parent(wheat.runtime_id, player_data.player_id)
+	if player_data.pockets.has_entity(harvested_item.runtime_id):
+		em.set_entity_parent(harvested_item.runtime_id, player_data.player_id)
 	else:
 		# 整包并入已有堆叠，原实体不再需要。
-		em.remove_entity(wheat.runtime_id)
-	GameLog.info("[工具] 收获小麦 ×%d！" % absorbed)
+		em.remove_entity(harvested_item.runtime_id)
+	GameLog.info("[工具] 收获%s ×%d！" % [CropSpecies.display_name(species), absorbed])
 
 func _resolve_player_id(player: CharacterBody3D) -> StringName:
 	var id_any: Variant = player.get("simulation_player_id")

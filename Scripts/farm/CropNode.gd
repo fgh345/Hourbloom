@@ -1,17 +1,17 @@
 extends Node3D
 
 var crop_id: int
-
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
-var _harvest_material: StandardMaterial3D
+var _mesh_instance: MeshInstance3D
+var _last_signature: String = ""
+var _height_cache: Dictionary = {}
+var _lod_timer: float = 0.0
 
 func _ready() -> void:
 	add_to_group("crop_node")
-	if GameManager.session != null and GameManager.session.farm != null:
-		var farm := GameManager.session.farm
-		if not farm.crop_updated.is_connected(_on_crop_updated):
-			farm.crop_updated.connect(_on_crop_updated)
-	scale = Vector3.ONE * 0.2
+	_mesh_instance = MeshInstance3D.new()
+	add_child(_mesh_instance)
+	var farm := GameManager.session.farm
+	farm.crop_updated.connect(_on_crop_updated)
 	refresh_from_data()
 
 func _exit_tree() -> void:
@@ -20,41 +20,50 @@ func _exit_tree() -> void:
 		if farm.crop_updated.is_connected(_on_crop_updated):
 			farm.crop_updated.disconnect(_on_crop_updated)
 
+func _process(delta: float) -> void:
+	_lod_timer += delta
+	if _lod_timer >= 1.0:
+		_lod_timer = 0.0
+		refresh_from_data()
+
 func refresh_from_data() -> void:
+	if _mesh_instance == null:
+		return
 	var farm := GameManager.session.farm
 	var crop := farm.get_crop(crop_id)
 	if crop == null:
 		queue_free()
 		return
-	var size := lerpf(0.2, 1.0, crop.progress(farm.get_current_total_minutes()))
-	# Crowded plants stay smaller so their placeholder meshes do not overlap.
-	var chunk := farm.world_to_chunk(crop.position)
-	for dz in range(-1, 2):
-		for dx in range(-1, 2):
-			for other_id: int in farm.get_chunk_crop_ids(chunk + Vector2i(dx, dz)):
-				if other_id == crop_id:
-					continue
-				var other := farm.get_crop(other_id)
-				var distance := Vector2(crop.position.x, crop.position.z).distance_to(Vector2(other.position.x, other.position.z))
-				size = minf(size, distance / (crop.mature_radius + other.mature_radius))
-	scale = Vector3.ONE * maxf(0.01, size)
-	set_harvestable_visual(crop.is_harvestable(farm.get_current_total_minutes()))
-
-func set_harvestable_visual(is_harvestable: bool) -> void:
-	if not is_harvestable:
-		mesh_instance.set_surface_override_material(0, null)
+	global_position = crop.position
+	var camera := get_viewport().get_camera_3d()
+	var detailed := camera == null or camera.global_position.distance_squared_to(crop.position) < 24.0 * 24.0
+	# Quantize to avoid rebuilding every simulated minute; mature geometry is cached.
+	var step := floori(crop.progress(farm.get_current_total_minutes()) * 100.0)
+	var signature := "%d:%s:%s" % [step, str(crop.harvested_fruits), str(detailed)]
+	if signature == _last_signature:
 		return
+	_last_signature = signature
+	var builder := CropVisualBuilder.new()
+	builder.ground_height = _local_ground_height
+	_mesh_instance.mesh = builder.build(crop, float(step) / 100.0, detailed)
 
-	if _harvest_material == null:
-		_harvest_material = StandardMaterial3D.new()
-		_harvest_material.albedo_color = Color(0.8, 0.8, 0.1)
-
-	mesh_instance.set_surface_override_material(0, _harvest_material)
+func _local_ground_height(point: Vector3) -> float:
+	var key := Vector2(point.x, point.z)
+	if _height_cache.has(key):
+		return _height_cache[key]
+	var world_point := global_position + point
+	var query := PhysicsRayQueryParameters3D.create(world_point + Vector3.UP * 3.0, world_point - Vector3.UP * 3.0)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	var height := 0.0
+	if not hit.is_empty() and (hit["normal"] as Vector3).dot(Vector3.UP) > 0.5:
+		height = (hit["position"] as Vector3).y - global_position.y
+	_height_cache[key] = height
+	return height
 
 func _on_crop_updated(updated_id: int, exists: bool) -> void:
 	if updated_id != crop_id:
 		return
 	if exists:
 		refresh_from_data()
-		return
-	queue_free()
+	else:
+		queue_free()

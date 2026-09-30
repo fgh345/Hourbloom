@@ -7,3 +7,8 @@
 `GridManager` 按作物 ID 创建独立 `CropNode`，节点保留作物精确坐标。当前占位方块在拥挤时缩小，以避免方块相交；正式作物模型需要按具体物种的形状处理碰撞与枝叶遮挡。区块仍按 32 米的土壤坐标加载，不随作物密度增加网格分辨率。
 
 新存档保留土壤热力图，单株写入 `FarmLayers/crop_instances.json`，包含 ID、位置、生长参数和已模拟到的分钟数。读取旧版无该文件的存档时，将作物热力图里的每个作物转为一条位于原土壤格中心的单株记录。重新保存后采用独立作物格式。旧热力图本身没有记录格内精确位置，因此无法恢复旧作物更细的落点。
+
+
+## Species and spreading plants
+
+See [sunflower and watermelon](../systems/crops.md) for species controls, vine geometry, individual fruit harvesting and save compatibility. CropData persists shape_seed and harvested_fruits. The soil grid does not constrain plant geometry.

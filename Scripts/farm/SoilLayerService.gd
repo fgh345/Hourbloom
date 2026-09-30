@@ -69,15 +69,14 @@ func plow_world(world_pos: Vector3) -> bool:
 	return false
 
 # Called by SeedTool.gd
-func seed_world(world_pos: Vector3) -> bool:
-	return GameManager.session.farm.plant_crop_at(world_pos) > 0
+func seed_world(world_pos: Vector3, species: StringName = &"sunflower") -> bool:
+	return GameManager.session.farm.plant_crop_at(world_pos, species, CropSpecies.growth_minutes(species), CropSpecies.seed_radius(species), CropSpecies.mature_radius(species)) > 0
 
 # Called by HarvestTool.gd. harvest_crop clears the crop, emits tile_updated
 # (which repaints soil and removes the crop node), and returns the yield.
 func harvest_world(world_pos: Vector3) -> Dictionary:
 	var farm := GameManager.session.farm
-	var crop := farm.get_crop_near(world_pos, 0.6, true)
-	return farm.harvest_crop_id(crop.id) if crop != null else {}
+	return farm.harvest_at(world_pos)
 
 func _on_tile_updated(grid_pos: Vector2i, new_state: int) -> void:
 	if not _runtime_paint_ready:

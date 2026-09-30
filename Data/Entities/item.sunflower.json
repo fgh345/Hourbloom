@@ -1,0 +1,16 @@
+{
+  "id": "item.sunflower",
+  "view_scene": "res://Scenes/Interactables/SunflowerHarvest.tscn",
+  "components": {
+    "transform": {},
+    "item": {
+      "mass_kg": 0.15,
+      "volume_liters": 0.2,
+      "display_name": "向日葵籽"
+    },
+    "stackable": {
+      "count": 1,
+      "max_stack": 64
+    }
+  }
+}

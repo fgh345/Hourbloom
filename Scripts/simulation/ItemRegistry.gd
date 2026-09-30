@@ -21,6 +21,15 @@ func _ready() -> void:
 	wheat.base_volume = 0.8
 	register_item(wheat)
 	
+	for species: StringName in [&"sunflower", &"watermelon"]:
+		var crop_item := ItemDefinition.new()
+		crop_item.id = CropSpecies.item_id(species)
+		crop_item.base_mass = 4.0 if species == &"watermelon" else 0.15
+		crop_item.base_volume = 5.0 if species == &"watermelon" else 0.2
+		crop_item.max_stack_size = 8 if species == &"watermelon" else 64
+		crop_item.world_scene = load("res://Scenes/Interactables/%sHarvest.tscn" % ("Watermelon" if species == &"watermelon" else "Sunflower"))
+		register_item(crop_item)
+
 	# Register commodities
 	var diesel := CommodityDefinition.new()
 	diesel.id = &"commodity.diesel"

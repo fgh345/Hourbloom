@@ -128,6 +128,7 @@ func plant_crop_at(position: Vector3, crop_type: StringName = &"generic", growth
 	crop.id = _next_crop_id
 	_next_crop_id += 1
 	crop.position = position
+	crop.shape_seed = crop.id * 7919 + roundi(position.x * 101.0) + roundi(position.z * 307.0)
 	crop.crop_type = crop_type
 	crop.planted_at_minute = get_current_total_minutes()
 	crop.simulated_until_minute = crop.planted_at_minute
@@ -146,21 +147,63 @@ func _register_crop(crop: CropData) -> void:
 	_next_crop_id = maxi(_next_crop_id, crop.id + 1)
 	crop_updated.emit(crop.id, true)
 
+# Harvest queries measure distance to fruit, not the watermelon root.
 func get_crop_near(position: Vector3, radius: float = 0.6, harvestable_only: bool = false) -> CropData:
 	var closest: CropData = null
 	var best := radius * radius
 	var chunk := world_to_chunk(position)
-	for dz in range(-1, 2):
-		for dx in range(-1, 2):
+	var reach := maxi(1, ceili((CropSpecies.MAX_SPREAD + radius) / simulation_chunk_size_tiles))
+	var minute := get_current_total_minutes()
+	for dz in range(-reach, reach + 1):
+		for dx in range(-reach, reach + 1):
 			for id: int in get_chunk_crop_ids(chunk + Vector2i(dx, dz)):
 				var crop := get_crop(id)
-				if crop == null or (harvestable_only and not crop.is_harvestable(get_current_total_minutes())):
+				if crop == null:
 					continue
-				var d := Vector2(position.x, position.z).distance_squared_to(Vector2(crop.position.x, crop.position.z))
-				if d <= best:
-					closest = crop
-					best = d
+				if crop.crop_type == &"watermelon":
+					for index in range(CropSpecies.FRUIT_COUNT):
+						if crop.harvested_fruits.has(index) or CropSpecies.fruit_progress(index, crop.progress(minute)) <= 0.0:
+							continue
+						if harvestable_only and not crop.fruit_is_harvestable(index, minute):
+							continue
+						var fruit := crop.fruit_position(index)
+						var distance := Vector2(position.x, position.z).distance_squared_to(Vector2(fruit.x, fruit.z))
+						if distance <= best:
+							closest = crop
+							best = distance
+				else:
+					if harvestable_only and not crop.is_harvestable(minute):
+						continue
+					var distance := Vector2(position.x, position.z).distance_squared_to(Vector2(crop.position.x, crop.position.z))
+					if distance <= best:
+						closest = crop
+						best = distance
 	return closest
+
+func harvest_at(position: Vector3, radius: float = 0.6) -> Dictionary:
+	var crop := get_crop_near(position, radius, true)
+	if crop == null:
+		return {}
+	if crop.crop_type != &"watermelon":
+		return harvest_crop_id(crop.id)
+	var selected := -1
+	var best := radius * radius
+	for index in range(CropSpecies.FRUIT_COUNT):
+		if not crop.fruit_is_harvestable(index, get_current_total_minutes()):
+			continue
+		var fruit := crop.fruit_position(index)
+		var distance := Vector2(position.x, position.z).distance_squared_to(Vector2(fruit.x, fruit.z))
+		if distance <= best:
+			selected = index
+			best = distance
+	if selected < 0:
+		return {}
+	return _harvest_fruit(crop, selected)
+
+func _harvest_fruit(crop: CropData, index: int) -> Dictionary:
+	crop.harvested_fruits.append(index)
+	crop_updated.emit(crop.id, true)
+	return {"crop_type": crop.crop_type, "yield": 1, "fruit_index": index}
 
 func get_crop_covered_tiles(crop_id: int, at_minute: int = -1) -> Array[Vector2i]:
 	var crop := get_crop(crop_id)
@@ -168,6 +211,25 @@ func get_crop_covered_tiles(crop_id: int, at_minute: int = -1) -> Array[Vector2i
 	if crop == null:
 		return tiles
 	var minute := get_current_total_minutes() if at_minute < 0 else at_minute
+	if crop.crop_type == &"watermelon":
+		var covered: Dictionary = {world_to_grid(crop.position): true}
+		var paths := crop.vine_paths()
+		for index in range(paths.size()):
+			var path := paths[index]
+			var extent := CropSpecies.path_growth(index, crop.progress(minute)) * (path.size() - 1)
+			if extent <= 0.0:
+				continue
+			for node in range(ceili(extent) + 1):
+				var segment := mini(node, floori(extent))
+				var point := crop.position + path[segment]
+				if node > segment and segment + 1 < path.size():
+					point = crop.position + path[segment].lerp(path[segment + 1], extent - segment)
+				for z in range(floori(point.z - 0.25), floori(point.z + 0.25) + 1):
+					for x in range(floori(point.x - 0.25), floori(point.x + 0.25) + 1):
+						covered[Vector2i(x, z)] = true
+		for tile: Vector2i in covered:
+			tiles.append(tile)
+		return tiles
 	var radius := lerpf(crop.seed_radius, crop.mature_radius, crop.progress(minute))
 	for z in range(floori(crop.position.z - radius), floori(crop.position.z + radius) + 1):
 		for x in range(floori(crop.position.x - radius), floori(crop.position.x + radius) + 1):
@@ -179,6 +241,12 @@ func get_crop_covered_tiles(crop_id: int, at_minute: int = -1) -> Array[Vector2i
 func harvest_crop_id(crop_id: int) -> Dictionary:
 	var crop := get_crop(crop_id)
 	if crop == null or not crop.is_harvestable(get_current_total_minutes()):
+		return {}
+	if crop.crop_type == &"watermelon":
+		# ID-only callers harvest one ripe fruit too; never erase the whole vine.
+		for index in range(CropSpecies.FRUIT_COUNT):
+			if crop.fruit_is_harvestable(index, get_current_total_minutes()):
+				return _harvest_fruit(crop, index)
 		return {}
 	_remove_crop(crop_id)
 	return {"crop_type": crop.crop_type, "yield": 1}

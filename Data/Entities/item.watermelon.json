@@ -1,0 +1,16 @@
+{
+  "id": "item.watermelon",
+  "view_scene": "res://Scenes/Interactables/WatermelonHarvest.tscn",
+  "components": {
+    "transform": {},
+    "item": {
+      "mass_kg": 4.0,
+      "volume_liters": 5.0,
+      "display_name": "西瓜"
+    },
+    "stackable": {
+      "count": 1,
+      "max_stack": 8
+    }
+  }
+}
