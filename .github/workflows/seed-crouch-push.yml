@@ -1,0 +1,30 @@
+name: Regenerate seed crouch asset
+
+on:
+  push:
+    branches:
+      - work/seed-crouch-push
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Regenerate gameplay GLB
+        run: python Art/Tools/Hoe/add_basic_actions.py
+      - name: Commit generated GLB
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Assets/Tools/Hoe/forest_girl_tools.glb
+          if git diff --cached --quiet; then
+            echo "No generated asset changes"
+            exit 1
+          fi
+          git commit -m "build(player): 生成播种下蹲动画"
+          git push origin HEAD:work/seed-crouch-push
