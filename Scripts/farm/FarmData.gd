@@ -129,6 +129,7 @@ func plant_crop_at(position: Vector3, crop_type: StringName = &"generic", growth
 	_next_crop_id += 1
 	crop.position = position
 	crop.shape_seed = crop.id * 7919 + roundi(position.x * 101.0) + roundi(position.z * 307.0)
+	crop.growth_rate = CropSpecies.growth_rate_for_seed(crop.shape_seed)
 	crop.crop_type = crop_type
 	crop.planted_at_minute = get_current_total_minutes()
 	crop.simulated_until_minute = crop.planted_at_minute
@@ -442,15 +443,15 @@ func _get_chunks_to_simulate_on_tick() -> Array[Vector2i]:
 
 	return chunks
 
-func _simulate_chunk_to_minute(chunk_pos: Vector2i, target_minute: int, emit_tile_updates: bool) -> void:
+func _simulate_chunk_to_minute(chunk_pos: Vector2i, target_minute: int, _emit_tile_updates: bool) -> void:
 	if not _crops_by_chunk.has(chunk_pos):
 		return
 	for id: int in get_chunk_crop_ids(chunk_pos):
 		var crop := get_crop(id)
 		if crop != null and target_minute > crop.simulated_until_minute:
 			crop.simulated_until_minute = target_minute
-		if crop != null and emit_tile_updates:
-			crop_updated.emit(id, true)
+	# Growth is continuous data state. GridManager polls visible crops with a frame budget;
+	# crop_updated is reserved for discrete events such as planting, fruit harvest, and removal.
 
 func _register_tile_in_indices(grid_pos: Vector2i, _tile_data: FarmTileData) -> void:
 	var chunk_pos := grid_to_chunk(grid_pos)

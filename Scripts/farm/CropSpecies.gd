@@ -4,6 +4,8 @@ extends RefCounted
 # World-space dimensions, deliberately independent of the one-metre soil grid.
 const MAX_SPREAD := 4.8
 const FRUIT_COUNT := 4
+const GROWTH_RATE_MIN := 0.97
+const GROWTH_RATE_MAX := 1.03
 
 static func display_name(species: StringName) -> String:
 	return "西瓜" if species == &"watermelon" else "向日葵"
@@ -16,6 +18,11 @@ static func mature_radius(species: StringName) -> float:
 
 static func growth_minutes(species: StringName) -> int:
 	return 5 * 24 * 60 if species == &"watermelon" else 3 * 24 * 60
+
+static func growth_rate_for_seed(shape_seed: int) -> float:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = shape_seed ^ 0x5F3759DF
+	return rng.randf_range(GROWTH_RATE_MIN, GROWTH_RATE_MAX)
 
 static func item_id(species: StringName) -> StringName:
 	return &"item.watermelon" if species == &"watermelon" else &"item.sunflower"

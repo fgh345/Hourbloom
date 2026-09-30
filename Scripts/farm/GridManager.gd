@@ -3,6 +3,9 @@ extends Node3D
 const ChunkGridOverlayRef = preload("res://Scripts/debug/ChunkGridOverlay.gd")
 const FarmableGridOverlayRef = preload("res://Scripts/debug/FarmableGridOverlay.gd")
 const CropNodeSceneRef = preload("res://Scenes/Interactables/CropNode.tscn")
+const CROP_VISUAL_SWEEP_SECONDS := 0.5
+const CROP_VISUAL_REFRESH_BUDGET_USEC := 1000
+const CROP_VISUAL_REFRESH_MAX_PER_FRAME := 64
 
 @export var enable_chunk_streaming := true
 @export var streamed_chunk_radius := 2  # change this to change spawing radiu
@@ -15,6 +18,10 @@ var _chunk_grid_overlay: Node3D = null
 var _farmable_grid_overlay: Node3D = null
 var _crop_nodes_by_grid: Dictionary = {}
 var _crop_nodes_container: Node3D = null
+var _crop_visual_ids: Array[int] = []
+var _crop_visual_index: Dictionary = {}
+var _crop_visual_cursor: int = 0
+var _crop_visual_refresh_credit: float = 0.0
 
 func _ready() -> void:
 	add_to_group("grid_manager")
@@ -41,15 +48,72 @@ func _exit_tree() -> void:
 			GameManager.session.farm.crop_updated.disconnect(_on_crop_updated)
 
 func _process(delta: float) -> void:
-	if not enable_chunk_streaming:
+	if enable_chunk_streaming:
+		_stream_update_timer += delta
+		if _stream_update_timer >= stream_update_interval_seconds:
+			_stream_update_timer = 0.0
+			_update_streamed_chunks()
+	_process_crop_visual_refreshes(delta)
+
+func _process_crop_visual_refreshes(delta: float) -> void:
+	var crop_count := _crop_visual_ids.size()
+	if crop_count <= 0:
+		_crop_visual_refresh_credit = 0.0
 		return
 
-	_stream_update_timer += delta
-	if _stream_update_timer < stream_update_interval_seconds:
+	var checks_per_second := float(crop_count) / CROP_VISUAL_SWEEP_SECONDS
+	_crop_visual_refresh_credit = minf(float(crop_count), _crop_visual_refresh_credit + delta * checks_per_second)
+	var requested := mini(CROP_VISUAL_REFRESH_MAX_PER_FRAME, floori(_crop_visual_refresh_credit))
+	if requested <= 0:
 		return
 
-	_stream_update_timer = 0.0
-	_update_streamed_chunks()
+	var started_usec := Time.get_ticks_usec()
+	var processed := 0
+	while processed < requested and not _crop_visual_ids.is_empty():
+		if processed > 0 and Time.get_ticks_usec() - started_usec >= CROP_VISUAL_REFRESH_BUDGET_USEC:
+			break
+		if _crop_visual_cursor >= _crop_visual_ids.size():
+			_crop_visual_cursor = 0
+		var crop_id := _crop_visual_ids[_crop_visual_cursor]
+		_crop_visual_cursor += 1
+		var crop_node: Node = _crop_nodes_by_grid.get(crop_id, null)
+		if crop_node == null or not is_instance_valid(crop_node):
+			_crop_nodes_by_grid.erase(crop_id)
+			_untrack_crop_visual(crop_id)
+			processed += 1
+			continue
+		if crop_node.has_method("refresh_from_data"):
+			crop_node.call("refresh_from_data")
+		processed += 1
+
+	_crop_visual_refresh_credit = maxf(0.0, _crop_visual_refresh_credit - float(processed))
+
+func _track_crop_visual(crop_id: int) -> void:
+	if _crop_visual_index.has(crop_id):
+		return
+	_crop_visual_index[crop_id] = _crop_visual_ids.size()
+	_crop_visual_ids.append(crop_id)
+
+func _untrack_crop_visual(crop_id: int) -> void:
+	if not _crop_visual_index.has(crop_id):
+		return
+	var remove_index := int(_crop_visual_index[crop_id])
+	var last_index := _crop_visual_ids.size() - 1
+	var last_id := _crop_visual_ids[last_index]
+	if remove_index != last_index:
+		_crop_visual_ids[remove_index] = last_id
+		_crop_visual_index[last_id] = remove_index
+	_crop_visual_ids.pop_back()
+	_crop_visual_index.erase(crop_id)
+	if _crop_visual_ids.is_empty():
+		_crop_visual_cursor = 0
+		_crop_visual_refresh_credit = 0.0
+	else:
+		if _crop_visual_cursor > remove_index:
+			_crop_visual_cursor -= 1
+		if _crop_visual_cursor >= _crop_visual_ids.size():
+			_crop_visual_cursor = 0
+		_crop_visual_refresh_credit = minf(_crop_visual_refresh_credit, float(_crop_visual_ids.size()))
 
 func _bind_stream_target() -> void:
 	var first_player := get_tree().get_first_node_in_group("player")
@@ -224,15 +288,21 @@ func _clear_all_crop_nodes() -> void:
 	for crop_id_any: Variant in _crop_nodes_by_grid.keys():
 		_remove_crop_node(int(crop_id_any))
 	_crop_nodes_by_grid.clear()
+	_crop_visual_ids.clear()
+	_crop_visual_index.clear()
+	_crop_visual_cursor = 0
+	_crop_visual_refresh_credit = 0.0
 
 func _ensure_crop_node(crop_id: int) -> void:
 	if _crop_nodes_by_grid.has(crop_id):
 		var existing: Node = _crop_nodes_by_grid[crop_id]
 		if existing != null and is_instance_valid(existing):
+			_track_crop_visual(crop_id)
 			if existing.has_method("refresh_from_data"):
 				existing.call("refresh_from_data")
 			return
 		_crop_nodes_by_grid.erase(crop_id)
+		_untrack_crop_visual(crop_id)
 
 	if _crop_nodes_container == null:
 		_create_crop_nodes_container()
@@ -254,8 +324,10 @@ func _ensure_crop_node(crop_id: int) -> void:
 		crop_node_any.call("refresh_from_data")
 
 	_crop_nodes_by_grid[crop_id] = crop_node_any
+	_track_crop_visual(crop_id)
 
 func _remove_crop_node(crop_id: int) -> void:
+	_untrack_crop_visual(crop_id)
 	if not _crop_nodes_by_grid.has(crop_id):
 		return
 	var node: Node = _crop_nodes_by_grid[crop_id]

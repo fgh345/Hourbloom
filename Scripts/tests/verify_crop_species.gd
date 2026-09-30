@@ -18,7 +18,9 @@ func _run() -> void:
 	var id := farm.plant_crop_at(Vector3(31.8, 0, 0.5), &"watermelon", 100, CropSpecies.seed_radius(&"watermelon"), CropSpecies.MAX_SPREAD)
 	check(id > 0, "Plant watermelon at arbitrary sub-grid coordinates")
 	var crop := farm.get_crop(id)
-	crop.simulated_until_minute = crop.planted_at_minute + 100
+	check(crop.growth_rate >= CropSpecies.GROWTH_RATE_MIN and crop.growth_rate <= CropSpecies.GROWTH_RATE_MAX, "New crops receive bounded growth variation")
+	check(is_equal_approx(crop.growth_rate, CropSpecies.growth_rate_for_seed(crop.shape_seed)), "Growth variation is deterministic from shape seed")
+	crop.simulated_until_minute = crop.planted_at_minute + 200
 	var paths := crop.vine_paths()
 	check(paths.size() == 12, "Four runners and eight side branches")
 	check(paths == CropSpecies.vine_paths(crop.shape_seed), "Stable paths from persisted shape seed")
@@ -41,6 +43,7 @@ func _run() -> void:
 	check(farm.harvest_at(fruit, 0.01).is_empty(), "Picked fruit cannot be picked twice")
 	var restored := CropData.from_dict(crop.to_dict())
 	check(restored.harvested_fruits == [0] and restored.vine_paths() == paths, "Save roundtrip retains fruit and vine shape")
+	check(is_equal_approx(restored.growth_rate, crop.growth_rate), "Save roundtrip retains growth variation")
 	farm.import_crops(farm.export_crops())
 	crop = farm.get_crop(id)
 	check(crop.harvested_fruits == [0], "Farm import retains harvest state")
@@ -54,10 +57,11 @@ func _run() -> void:
 	farm.set_tile_state(Vector2i(0, 0), FarmData.SoilState.PLOWED)
 	var sun_id := farm.plant_crop_at(Vector3(0.3, 0, 0.4), &"sunflower", 100)
 	var sun := farm.get_crop(sun_id)
-	sun.simulated_until_minute = sun.planted_at_minute + 100
+	sun.simulated_until_minute = sun.planted_at_minute + 200
 	check(farm.harvest_at(sun.position, 0.01).get("crop_type") == &"sunflower" and farm.get_crop(sun_id) == null, "Sunflower harvest removes single plant")
 	var legacy := CropData.from_dict({"id": 9, "position": [1, 0, 1]})
 	check(legacy != null and legacy.crop_type == &"generic" and legacy.harvested_fruits.is_empty(), "Legacy saves remain readable")
+	check(is_equal_approx(legacy.growth_rate, 1.0), "Legacy saves keep neutral growth rate")
 	for species: StringName in [&"sunflower", &"watermelon"]:
 		var visual_crop := CropData.new()
 		visual_crop.crop_type = species

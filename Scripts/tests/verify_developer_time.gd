@@ -77,16 +77,18 @@ func _run() -> void:
 	farm.set_tile_state(Vector2i(5, 0), FarmData.SoilState.PLOWED)
 	var sunflower := farm.get_crop(farm.plant_crop_at(Vector3(0.5, 0, 0.5), &"sunflower", CropSpecies.growth_minutes(&"sunflower")))
 	var watermelon := farm.get_crop(farm.plant_crop_at(Vector3(5.5, 0, 0.5), &"watermelon", CropSpecies.growth_minutes(&"watermelon")))
-	for second in range(72):
+	check(sunflower.growth_rate >= CropSpecies.GROWTH_RATE_MIN and sunflower.growth_rate <= CropSpecies.GROWTH_RATE_MAX, "Sunflower gets bounded individual growth rate")
+	check(watermelon.growth_rate >= CropSpecies.GROWTH_RATE_MIN and watermelon.growth_rate <= CropSpecies.GROWTH_RATE_MAX, "Watermelon gets bounded individual growth rate")
+	for second in range(75):
 		GameManager.session.process_tick(1.0)
-	check(sunflower.is_harvestable(GameManager.session.time.get_total_minutes()), "60-minute rate matures sunflower in 72 real seconds")
+	check(sunflower.is_harvestable(GameManager.session.time.get_total_minutes()), "60-minute rate matures even the slowest sunflower by 75 real seconds")
 	check(not watermelon.is_harvestable(GameManager.session.time.get_total_minutes()), "Watermelon does not mature prematurely")
-	for second in range(30):
+	for second in range(32):
 		GameManager.session.process_tick(1.0)
-	check(watermelon.fruit_is_harvestable(0, GameManager.session.time.get_total_minutes()) and not watermelon.fruit_is_harvestable(3, GameManager.session.time.get_total_minutes()), "First watermelon ripens after 102 real seconds")
+	check(watermelon.fruit_is_harvestable(0, GameManager.session.time.get_total_minutes()) and not watermelon.fruit_is_harvestable(3, GameManager.session.time.get_total_minutes()), "First watermelon is ripe while the last is still growing by 107 real seconds")
 	for second in range(18):
 		GameManager.session.process_tick(1.0)
-	check(watermelon.fruit_is_harvestable(3, GameManager.session.time.get_total_minutes()), "All watermelon fruit ripens after 120 real seconds")
+	check(watermelon.fruit_is_harvestable(3, GameManager.session.time.get_total_minutes()), "All watermelon fruit ripens by 125 real seconds")
 	GameInput.ensure_default_bindings()
 	var ui := load("res://Scenes/UI/MasterUI.tscn").instantiate() as CanvasLayer
 	get_tree().root.add_child(ui)

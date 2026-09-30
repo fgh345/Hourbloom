@@ -4,19 +4,12 @@ var crop_id: int
 var _mesh_instance: MeshInstance3D
 var _last_signature: String = ""
 var _height_cache: Dictionary = {}
-var _lod_timer: float = 0.0
 
 func _ready() -> void:
 	add_to_group("crop_node")
 	_mesh_instance = MeshInstance3D.new()
 	add_child(_mesh_instance)
 	refresh_from_data()
-
-func _process(delta: float) -> void:
-	_lod_timer += delta
-	if _lod_timer >= 1.0:
-		_lod_timer = 0.0
-		refresh_from_data()
 
 func refresh_from_data() -> void:
 	if _mesh_instance == null:
