@@ -16,4 +16,19 @@ func _process(delta: float) -> void:
 
 func _refresh() -> void:
 	var fps := int(Engine.get_frames_per_second())
-	fps_label.text = "FPS: %d" % fps if fps > 0 else "FPS: --"
+	var process_ms := float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0
+	var physics_ms := float(Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS)) * 1000.0
+	var draw_calls := int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
+	var rendered_objects := int(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME))
+	var primitives := int(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME))
+	var video_mem_mb := float(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED)) / (1024.0 * 1024.0)
+
+	fps_label.text = "FPS: %s\nCPU: %.2f ms  Physics: %.2f ms\nDraw Calls: %d  Objects: %d\nPrimitives: %d\nVideo Mem: %.1f MB" % [
+		str(fps) if fps > 0 else "--",
+		process_ms,
+		physics_ms,
+		draw_calls,
+		rendered_objects,
+		primitives,
+		video_mem_mb
+	]
