@@ -27,11 +27,9 @@ func is_active() -> bool:
 	return _kind != &""
 
 func start(kind: StringName, effect: Callable, valid: Callable = Callable()) -> bool:
-	if is_active() or not DURATIONS.has(kind) or _tree == null or _visual == null or not effect.is_valid():
+	if is_active() or not DURATIONS.has(kind) or _visual == null or not effect.is_valid():
 		return false
 	if not _player.is_inside_tree() or not _player.is_on_floor() or _player.is_godmode or GameInput.is_gameplay_input_blocked(_player.get_tree()):
-		return false
-	if _tree.get("parameters/basic_action_blend/blend_amount") == null:
 		return false
 	_revision += 1
 	_kind = kind
@@ -44,9 +42,10 @@ func start(kind: StringName, effect: Callable, valid: Callable = Callable()) -> 
 	_visual_yaw = _visual.rotation.y
 	_player.velocity.x = 0.0
 	_player.velocity.z = 0.0
-	_tree.set("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
-	_tree.set("parameters/basic_action/transition_request", String(kind))
-	_tree.set("parameters/basic_action_seek/seek_request", 0.0)
+	if _has_animation_contract():
+		_set_parameter_if_present("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
+		_set_parameter_if_present("parameters/basic_action/transition_request", String(kind))
+		_set_parameter_if_present("parameters/basic_action_seek/seek_request", 0.0)
 	return true
 
 func update(delta: float) -> void:
@@ -58,9 +57,10 @@ func update(delta: float) -> void:
 	_player.rotation.y = _yaw
 	_visual.rotation.y = _visual_yaw
 	_elapsed = minf(_elapsed + delta, DURATIONS[_kind])
-	_tree.set("parameters/basic_action_seek/seek_request", _elapsed)
-	var weight := minf(_elapsed / BLEND, (DURATIONS[_kind] - _elapsed) / BLEND)
-	_tree.set("parameters/basic_action_blend/blend_amount", clampf(weight, 0.0, 1.0))
+	if _has_animation_contract():
+		_set_parameter_if_present("parameters/basic_action_seek/seek_request", _elapsed)
+		var weight := minf(_elapsed / BLEND, (DURATIONS[_kind] - _elapsed) / BLEND)
+		_set_parameter_if_present("parameters/basic_action_blend/blend_amount", clampf(weight, 0.0, 1.0))
 	if not _committed and _elapsed >= CONTACT[_kind]:
 		_committed = true
 		var revision := _revision
@@ -80,5 +80,12 @@ func cancel() -> void:
 	_effect = Callable()
 	_valid = Callable()
 	_committed = false
-	if _tree != null and _tree.get("parameters/basic_action_blend/blend_amount") != null:
-		_tree.set("parameters/basic_action_blend/blend_amount", 0.0)
+	if _has_animation_contract():
+		_set_parameter_if_present("parameters/basic_action_blend/blend_amount", 0.0)
+
+func _has_animation_contract() -> bool:
+	return _tree != null and _tree.get("parameters/basic_action_blend/blend_amount") != null
+
+func _set_parameter_if_present(parameter_path: String, value: Variant) -> void:
+	if _tree != null and _tree.get(parameter_path) != null:
+		_tree.set(parameter_path, value)

@@ -30,12 +30,16 @@ func prime_animation_tree() -> void:
 		return
 
 	_anim_tree.active = true
-	_anim_tree.set("parameters/movement/transition_request", String("Idle"))
-	_anim_tree.set("parameters/walk_speed/scale", _walk_anim_scale)
-	_anim_tree.set("parameters/run_lean/add_amount", _run_lean_amount)
-	_anim_tree.set("parameters/jump_style/blend_amount", _airborne_style)
-	_anim_tree.set("parameters/fall_style/blend_amount", _airborne_style)
-	_anim_tree.set("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
+	_set_parameter_if_present("parameters/movement/transition_request", String("Idle"))
+	_set_parameter_if_present("parameters/walk_speed/scale", _walk_anim_scale)
+	_set_parameter_if_present("parameters/run_lean/add_amount", _run_lean_amount)
+	_set_parameter_if_present("parameters/jump_style/blend_amount", _airborne_style)
+	_set_parameter_if_present("parameters/fall_style/blend_amount", _airborne_style)
+	_set_parameter_if_present("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
+
+func _set_parameter_if_present(parameter_path: String, value: Variant) -> void:
+	if _anim_tree != null and _anim_tree.get(parameter_path) != null:
+		_anim_tree.set(parameter_path, value)
 
 func process_movement(delta: float, movement_enabled: bool = true, reference_basis: Basis = Basis.IDENTITY) -> void:
 	if _player == null:
@@ -142,9 +146,9 @@ func _update_animation_tree(delta: float, is_moving: bool, is_sprinting: bool, i
 			# Lock the pose to takeoff speed; air steering must not shuffle the legs.
 			# Walking off a ledge uses the same choice as an intentional jump.
 			_airborne_style = clampf(horizontal_speed / maxf(_player.walk_speed, 0.01), 0.0, 1.0)
-			_anim_tree.set("parameters/jump_style/blend_amount", _airborne_style)
-			_anim_tree.set("parameters/fall_style/blend_amount", _airborne_style)
-			_anim_tree.set("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
+			_set_parameter_if_present("parameters/jump_style/blend_amount", _airborne_style)
+			_set_parameter_if_present("parameters/fall_style/blend_amount", _airborne_style)
+			_set_parameter_if_present("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
 		if _player.velocity.y > 0.0:
 			next_state = &"Jump"
 		else:
@@ -157,7 +161,7 @@ func _update_animation_tree(delta: float, is_moving: bool, is_sprinting: bool, i
 			# Keep the feet stepping while only the upper body absorbs impact.
 			_landing_state = &""
 			_landing_state_time_left = 0.0
-			_anim_tree.set("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+			_set_parameter_if_present("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
 		else:
 			_landing_state = &"LandSoft"
 			_landing_state_time_left = _player.landing_soft_hold_time
@@ -171,7 +175,7 @@ func _update_animation_tree(delta: float, is_moving: bool, is_sprinting: bool, i
 			_landing_state = &""
 
 	_walk_anim_scale = lerpf(_walk_anim_scale, target_walk_scale, _player.walk_anim_scale_lerp_speed * delta)
-	_anim_tree.set("parameters/walk_speed/scale", _walk_anim_scale)
+	_set_parameter_if_present("parameters/walk_speed/scale", _walk_anim_scale)
 
 	var target_run_lean: float = 0.0
 	var horizontal_velocity := Vector2(_player.velocity.x, _player.velocity.z)
@@ -191,13 +195,13 @@ func _update_animation_tree(delta: float, is_moving: bool, is_sprinting: bool, i
 		_previous_velocity_direction = Vector2.ZERO
 
 	_run_lean_amount = lerpf(_run_lean_amount, target_run_lean, _player.run_lean_lerp_speed * delta)
-	_anim_tree.set("parameters/run_lean/add_amount", _run_lean_amount)
+	_set_parameter_if_present("parameters/run_lean/add_amount", _run_lean_amount)
 
 	if next_state == _movement_anim_state:
 		_was_on_floor = is_on_floor_now
 		return
 
-	_anim_tree.set("parameters/movement/transition_request", String(next_state))
+	_set_parameter_if_present("parameters/movement/transition_request", String(next_state))
 	_movement_anim_state = next_state
 	_was_on_floor = is_on_floor_now
 

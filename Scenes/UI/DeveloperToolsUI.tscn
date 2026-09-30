@@ -9,7 +9,20 @@ theme_override_constants/separation = 12
 [node name="Heading" type="Label" parent="."]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "开发者工具"
+text = "设置"
+
+[node name="CharacterHeading" type="Label" parent="."]
+layout_mode = 2
+text = "角色"
+
+[node name="CharacterSelect" type="OptionButton" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CharacterStatus" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
 
 [node name="TimeHeading" type="Label" parent="."]
 layout_mode = 2

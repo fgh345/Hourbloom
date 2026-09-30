@@ -37,9 +37,9 @@ func is_active() -> bool:
 	return _active
 
 func start(tool: HoeTool) -> bool:
-	if _active or tool == null or _visual == null or _tree == null:
+	if _active or tool == null or _visual == null:
 		return false
-	if not _can_act() or not _has_animation_contract():
+	if not _can_act():
 		return false
 	# Use the character's current facing, independently of the orbit camera.
 	var hit := _contact_ground()
@@ -56,13 +56,12 @@ func start(tool: HoeTool) -> bool:
 	_active = true
 	_player.velocity.x = 0.0
 	_player.velocity.z = 0.0
-	_tree.set("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
-	_tree.set("parameters/hoe_action_seek/seek_request", 0.0)
+	if _has_animation_contract():
+		_set_parameter_if_present("parameters/landing_recoil/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
+		_set_parameter_if_present("parameters/hoe_action_seek/seek_request", 0.0)
 	return true
 
 func update(delta: float, equipped: bool, blocked: bool = false) -> void:
-	if _tree == null:
-		return
 	if _active:
 		if blocked or not equipped or not _can_act() or _player.global_position.distance_to(_origin) > 0.05:
 			cancel()
@@ -70,9 +69,11 @@ func update(delta: float, equipped: bool, blocked: bool = false) -> void:
 			_player.rotation.y = _locked_yaw
 			_visual.rotation.y = _locked_visual_yaw
 			_elapsed = minf(_elapsed + delta, DURATION)
-			_tree.set("parameters/hoe_action_seek/seek_request", _elapsed)
-			var weight := minf(_elapsed / BLEND_TIME, (DURATION - _elapsed) / BLEND_TIME)
-			_tree.set("parameters/hoe_action_blend/blend_amount", clampf(weight, 0.0, 1.0))
+			var has_animation := _has_animation_contract()
+			if has_animation:
+				_set_parameter_if_present("parameters/hoe_action_seek/seek_request", _elapsed)
+				var weight := minf(_elapsed / BLEND_TIME, (DURATION - _elapsed) / BLEND_TIME)
+				_set_parameter_if_present("parameters/hoe_action_blend/blend_amount", clampf(weight, 0.0, 1.0))
 			if not _impacted and _elapsed >= IMPACT_TIME:
 				_impacted = true
 				var hit := _contact_ground()
@@ -83,22 +84,28 @@ func update(delta: float, equipped: bool, blocked: bool = false) -> void:
 				_tool = null
 	# Show the bound tool only at the authored grip pose, not while blending
 	# between the freehand pose and the swing (which would separate the hands).
-	var action_weight: float = _tree.get("parameters/hoe_action_blend/blend_amount")
+	var action_weight := 0.0
+	if _has_animation_contract():
+		action_weight = float(_tree.get("parameters/hoe_action_blend/blend_amount"))
 	_set_tool_visible(_active and action_weight > 0.99)
 
 func cancel() -> void:
 	_active = false
 	_impacted = false
 	_tool = null
-	if _tree != null and _has_animation_contract():
-		_tree.set("parameters/hoe_action_blend/blend_amount", 0.0)
+	if _has_animation_contract():
+		_set_parameter_if_present("parameters/hoe_action_blend/blend_amount", 0.0)
 	_set_tool_visible(false)
 
 func _can_act() -> bool:
 	return _player.is_inside_tree() and _player.is_on_floor() and not _player.is_godmode and _player.is_visible_in_tree() and _player.can_process() and not GameInput.is_gameplay_input_blocked(_player.get_tree())
 
 func _has_animation_contract() -> bool:
-	return _tree.get("parameters/hoe_action_blend/blend_amount") != null
+	return _tree != null and _tree.get("parameters/hoe_action_blend/blend_amount") != null
+
+func _set_parameter_if_present(parameter_path: String, value: Variant) -> void:
+	if _tree != null and _tree.get(parameter_path) != null:
+		_tree.set(parameter_path, value)
 
 func _can_plow(position: Vector3) -> bool:
 	return GameManager.session != null and GameManager.session.farm != null and GameManager.session.farm.can_plow_at(position)

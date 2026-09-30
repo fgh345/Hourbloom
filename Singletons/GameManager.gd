@@ -26,3 +26,11 @@ func set_time_minutes_per_second(rate: float) -> Error:
     if error != ERR_INVALID_PARAMETER and session != null:
         session.time.time_multiplier = developer_settings.minutes_per_second * 60.0
     return error
+
+func set_character_id(id: String) -> Error:
+    if id not in DeveloperSettings.CHARACTER_IDS:
+        return ERR_INVALID_PARAMETER
+    var player := get_tree().get_first_node_in_group("player")
+    if player != null and (not player.has_method("set_character_visual") or not player.call("set_character_visual", id)):
+        return ERR_CANT_CREATE
+    return developer_settings.set_character_id(id)
