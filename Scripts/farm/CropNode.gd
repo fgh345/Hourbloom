@@ -1,38 +1,34 @@
 extends Node3D
 
 var crop_id: int
-var _rig: CropVisualRig
+var _mesh_instance: MeshInstance3D
+var _last_signature: String = ""
 var _height_cache: Dictionary = {}
 var _lod_timer: float = 0.0
-var _progress: float = 0.0
-var _day_controller: DayNightController
-var _last_detail: bool = true
-var _visual_root: Node3D
-var _harvested: Array = []
 
 func _ready() -> void:
 	add_to_group("crop_node")
-	_day_controller = get_tree().get_first_node_in_group("day_night_controller") as DayNightController
+	_mesh_instance = MeshInstance3D.new()
+	add_child(_mesh_instance)
+	var farm := GameManager.session.farm
+	farm.crop_updated.connect(_on_crop_updated)
 	refresh_from_data()
+
+func _exit_tree() -> void:
+	if GameManager.session != null and GameManager.session.farm != null:
+		var farm := GameManager.session.farm
+		if farm.crop_updated.is_connected(_on_crop_updated):
+			farm.crop_updated.disconnect(_on_crop_updated)
 
 func _process(delta: float) -> void:
 	_lod_timer += delta
 	if _lod_timer >= 1.0:
 		_lod_timer = 0.0
-		if not is_instance_valid(_day_controller):
-			_day_controller = get_tree().get_first_node_in_group("day_night_controller") as DayNightController
 		refresh_from_data()
-	if _rig != null and not _rig.is_melon and _progress >= 0.55:
-		var day := float(posmod(GameManager.session.farm.get_current_total_minutes(), 1440)) / 1440.0
-		var frame := Basis.IDENTITY
-		if is_instance_valid(_day_controller):
-			day = _day_controller.current_day_progress
-			if is_instance_valid(_day_controller.sun_light):
-				var light := _day_controller.sun_light
-				frame = light.get_parent_node_3d().global_basis * Basis.from_euler(Vector3(0.0, light.rotation.y, light.rotation.z))
-		_rig.pose(day, _progress, global_basis.inverse() * frame)
 
 func refresh_from_data() -> void:
+	if _mesh_instance == null:
+		return
 	var farm := GameManager.session.farm
 	var crop := farm.get_crop(crop_id)
 	if crop == null:
@@ -41,21 +37,15 @@ func refresh_from_data() -> void:
 	global_position = crop.position
 	var camera := get_viewport().get_camera_3d()
 	var detailed := camera == null or camera.global_position.distance_squared_to(crop.position) < 24.0 * 24.0
-	if _rig == null or detailed != _last_detail:
-		if _visual_root != null:
-			remove_child(_visual_root)
-			_visual_root.queue_free()
-		_visual_root = Node3D.new()
-		add_child(_visual_root)
-		_rig = CropVisualRig.new()
-		_rig.initialize(_visual_root, crop, detailed, _local_ground_height)
-		_last_detail = detailed
-		_progress = -1.0
-	var next_progress := crop.progress(farm.get_current_total_minutes())
-	if not is_equal_approx(next_progress, _progress) or _harvested != crop.harvested_fruits or _rig.stems.visible_instance_count == 0:
-		_progress = next_progress
-		_harvested = crop.harvested_fruits.duplicate()
-		_rig.update(crop, _progress)
+	# Quantize to avoid rebuilding every simulated minute; mature geometry is cached.
+	var step := floori(crop.progress(farm.get_current_total_minutes()) * 100.0)
+	var signature := "%d:%s:%s" % [step, str(crop.harvested_fruits), str(detailed)]
+	if signature == _last_signature:
+		return
+	_last_signature = signature
+	var builder := CropVisualBuilder.new()
+	builder.ground_height = _local_ground_height
+	_mesh_instance.mesh = builder.build(crop, float(step) / 100.0, detailed)
 
 func _local_ground_height(point: Vector3) -> float:
 	var key := Vector2(point.x, point.z)
@@ -69,3 +59,11 @@ func _local_ground_height(point: Vector3) -> float:
 		height = (hit["position"] as Vector3).y - global_position.y
 	_height_cache[key] = height
 	return height
+
+func _on_crop_updated(updated_id: int, exists: bool) -> void:
+	if updated_id != crop_id:
+		return
+	if exists:
+		refresh_from_data()
+	else:
+		queue_free()

@@ -15,9 +15,6 @@ func build(crop: CropData, progress: float, detailed: bool = true) -> ArrayMesh:
 			_watermelon(crop, progress, detailed)
 		else:
 			_sunflower(crop, progress, detailed)
-	return finish_mesh()
-
-func finish_mesh() -> ArrayMesh:
 	var result := ArrayMesh.new()
 	for key: String in _surfaces:
 		var surface: SurfaceTool = _surfaces[key]
@@ -106,11 +103,8 @@ func _sunflower(crop: CropData, progress: float, detailed: bool) -> void:
 		_leaf(leaf_root, leaf_angle, leaf_size)
 	if progress < 0.55:
 		return
-	_sunflower_head(progress, detailed, top + Vector3(0, 0.025, 0), angle)
-
-func _sunflower_head(progress: float, detailed: bool, origin: Vector3 = Vector3.ZERO, angle: float = 0.0) -> void:
 	var bloom := clampf((progress - 0.68) / 0.20, 0.0, 1.0)
-	var center := origin
+	var center := top + Vector3(0, 0.025, 0)
 	if bloom <= 0.0:
 		_ellipsoid(center, Vector3(0.065, 0.09, 0.065), "bud", Color(0.36, 0.48, 0.12))
 		return
@@ -211,17 +205,3 @@ func _melon_vertex(center: Vector3, radius: float, latitude: float, longitude: f
 	var theta := latitude * PI
 	var phi := longitude * TAU + 0.035 * sin(theta * 5.0)
 	return center + Vector3(sin(theta) * cos(phi) * 1.2, cos(theta) * 0.84, sin(theta) * sin(phi)) * radius
-
-func reusable_part(kind: String, detailed: bool = true) -> ArrayMesh:
-	_surfaces.clear()
-	_materials.clear()
-	match kind:
-		"leaf": _leaf(Vector3.ZERO, 0.0, 1.0)
-		"lobed": _leaf(Vector3.ZERO, 0.0, 1.0, true)
-		"stem": _stem(Vector3.DOWN * 0.5, Vector3.UP * 0.5, 1.0)
-		"soil": _mound()
-		"bud": _ellipsoid(Vector3.ZERO, Vector3(0.065, 0.09, 0.065), "bud", Color(0.36, 0.48, 0.12))
-		"melon": _melon(Vector3.ZERO, 1.0, detailed)
-		"flower": _flower(Vector3.ZERO)
-		"head": _sunflower_head(1.0, detailed, Vector3.ZERO, PI / 2.0)
-	return finish_mesh()

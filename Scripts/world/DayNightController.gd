@@ -11,7 +11,6 @@ var current_day_progress: float = 0.5
 # Day progress goes from 0.0 to 1.0 (midnight to midnight)
 
 func _ready() -> void:
-	add_to_group("day_night_controller")
 	if not sun_color_gradient:
 		sun_color_gradient = Gradient.new()
 		sun_color_gradient.interpolation_mode = Gradient.GRADIENT_INTERPOLATE_LINEAR
