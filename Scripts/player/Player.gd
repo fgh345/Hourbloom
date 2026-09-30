@@ -1,9 +1,8 @@
 extends CharacterBody3D
 
 @export var simulation_player_id: StringName = &"player.main"
-@export var character_visual_path: NodePath = NodePath("CharacterVisual")
-@export var character_animation_tree_path: NodePath = NodePath("CharacterVisual/AnimationTree")
 const OrbitCameraControllerRef = preload("res://Scripts/camera/OrbitCameraController.gd")
+const FemaleCharacterVisualScene: PackedScene = preload("res://Scenes/Actors/FemaleCharacterVisual.tscn")
 const MaleCharacterVisualScene: PackedScene = preload("res://Scenes/Actors/MaleCharacterVisual.tscn")
 @export var walk_speed: float = 5.0
 @export var sprint_speed: float = 8.0
@@ -36,8 +35,8 @@ const MaleCharacterVisualScene: PackedScene = preload("res://Scenes/Actors/MaleC
 
 @onready var spring_arm: SpringArm3D = $SpringArm3D
 @onready var camera: Camera3D = $SpringArm3D/Camera3D
-@onready var hero_mesh: Node3D = get_node_or_null(character_visual_path) as Node3D
-@onready var Anim_tree: AnimationTree = get_node_or_null(character_animation_tree_path) as AnimationTree
+var hero_mesh: Node3D = null
+var Anim_tree: AnimationTree = null
 
 
 var _player_data: PlayerData
@@ -56,8 +55,8 @@ var _basic_action_controller: RefCounted
 var _camera_controller: OrbitCameraController
 var _hero_base_yaw: float = 0.0
 var _hover_frame_count: int = 0
-var _male_character_visual: Node3D
-var current_character_id: String = "female"
+var _character_visual: Node3D = null
+var current_character_id: String = ""
 
 func _ready() -> void:
 	# Godot callback: runs when the node enters the scene tree and children are ready; sets up data, camera, tools, controllers, UI, and publishes initial state.
@@ -108,49 +107,37 @@ func _ready() -> void:
 func set_character_visual(character_id: String) -> bool:
 	if character_id != "female" and character_id != "male":
 		return false
-	if current_character_id == character_id and hero_mesh != null:
+	if current_character_id == character_id and _character_visual != null and is_instance_valid(_character_visual):
 		return true
+
 	if _hoe_controller != null:
 		_hoe_controller.cancel()
 	if _basic_action_controller != null:
 		_basic_action_controller.cancel()
 
-	var female_visual := get_node_or_null(character_visual_path) as Node3D
-	if character_id == "male":
-		if _male_character_visual == null or not is_instance_valid(_male_character_visual):
-			_male_character_visual = MaleCharacterVisualScene.instantiate() as Node3D
-			if _male_character_visual == null:
-				return false
-			_male_character_visual.name = "MaleCharacterVisual"
-			add_child(_male_character_visual)
-			if female_visual != null:
-				_male_character_visual.transform = female_visual.transform
-		_male_character_visual.visible = true
-		if female_visual != null:
-			female_visual.visible = false
-		var female_tree := get_node_or_null(character_animation_tree_path) as AnimationTree
-		if female_tree != null:
-			female_tree.active = false
-		hero_mesh = _male_character_visual
-		Anim_tree = _male_character_visual.get_node_or_null("AnimationTree") as AnimationTree
-		if Anim_tree != null:
-			Anim_tree.active = true
-	else:
-		if female_visual == null:
-			return false
-		female_visual.visible = true
-		if _male_character_visual != null and is_instance_valid(_male_character_visual):
-			_male_character_visual.visible = false
-			var male_tree := _male_character_visual.get_node_or_null("AnimationTree") as AnimationTree
-			if male_tree != null:
-				male_tree.active = false
-		hero_mesh = female_visual
-		Anim_tree = get_node_or_null(character_animation_tree_path) as AnimationTree
-		if Anim_tree != null:
-			Anim_tree.active = true
+	var visual_scene: PackedScene = FemaleCharacterVisualScene if character_id == "female" else MaleCharacterVisualScene
+	var new_visual := visual_scene.instantiate() as Node3D
+	if new_visual == null:
+		return false
+
+	var visual_transform := new_visual.transform
+	if _character_visual != null and is_instance_valid(_character_visual):
+		visual_transform = _character_visual.transform
+		remove_child(_character_visual)
+		_character_visual.free()
+
+	new_visual.name = "CharacterVisual"
+	add_child(new_visual)
+	new_visual.transform = visual_transform
+	_character_visual = new_visual
+	hero_mesh = new_visual
+	Anim_tree = new_visual.get_node_or_null("AnimationTree") as AnimationTree
+	if Anim_tree != null:
+		Anim_tree.active = true
 
 	current_character_id = character_id
-	_hero_base_yaw = hero_mesh.rotation.y if hero_mesh != null else 0.0
+	_hero_base_yaw = hero_mesh.rotation.y
+
 	if _movement_controller != null:
 		_movement_controller = preload("res://Scripts/player/PlayerMovementController.gd").new(self, _player_data, gravity, hero_mesh, Anim_tree, _hero_base_yaw)
 		if Anim_tree != null:
