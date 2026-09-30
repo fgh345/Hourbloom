@@ -29,6 +29,15 @@ baseline = {'buffer_length': len(binary), 'view_count': len(doc['bufferViews']),
 base = next(a for a in doc['animations'] if a['name'] == 'freehand_idle')
 by_node = {n['name']: i for i, n in enumerate(doc['nodes']) if 'name' in n}
 
+# Seed uses an analytic symmetric squat: both ankles stay almost planted while
+# the pelvis drops, then the torso and right arm reach the sowing contact point.
+SEED_CROUCH_DEGREES = 75.0
+SEED_CROUCH_RADIANS = math.radians(SEED_CROUCH_DEGREES)
+SEED_THIGH_LENGTH = .45
+SEED_SHIN_LENGTH = .48
+SEED_PELVIS_DROP = (SEED_THIGH_LENGTH + SEED_SHIN_LENGTH) * (1.0 - math.cos(SEED_CROUCH_RADIANS))
+SEED_PELVIS_FORWARD = (SEED_SHIN_LENGTH - SEED_THIGH_LENGTH) * math.sin(SEED_CROUCH_RADIANS)
+
 
 def accessor_values(index):
     a = doc['accessors'][index]
@@ -79,8 +88,10 @@ def add_accessor(values, shape):
 # Peak poses expressed in local bone space, tapered by an ease-in/out envelope.
 # Every clip begins/ends at the freehand idle pose for interruption safety.
 specs = {
-    'Seed': (.72, .40, {'pelvis': ('x', 15), 'chest': ('x', 27), 'head': ('x', -10),
-                          'upper_arm.R': ('x', -48), 'forearm.R': ('x', 26), 'upper_arm.L': ('x', -17)}),
+    'Seed': (.72, .40, {'chest': ('x', 65), 'head': ('x', -24),
+                          'upper_arm.R': ('x', -82), 'forearm.R': ('x', 12), 'upper_arm.L': ('x', -24),
+                          'thigh.L': ('x', -SEED_CROUCH_DEGREES), 'shin.L': ('x', SEED_CROUCH_DEGREES * 2), 'foot.L': ('x', -SEED_CROUCH_DEGREES),
+                          'thigh.R': ('x', -SEED_CROUCH_DEGREES), 'shin.R': ('x', SEED_CROUCH_DEGREES * 2), 'foot.R': ('x', -SEED_CROUCH_DEGREES)}),
     'Harvest': (.72, .43, {'pelvis': ('x', 19), 'chest': ('x', 34), 'head': ('x', -12),
                              'upper_arm.R': ('x', -68), 'forearm.R': ('x', 37), 'upper_arm.L': ('x', -31)}),
     'Pickup': (.64, .38, {'pelvis': ('x', 25), 'chest': ('x', 45), 'head': ('x', -17),
@@ -108,8 +119,12 @@ for name, (duration, contact, peak) in specs.items():
                 axis, degrees = peak[bone]
                 value = multiply(original, axis_quat(axis, degrees * weight))
             elif path == 'translation' and bone == 'pelvis':
-                depth = .10 if name in ('Pickup', 'Harvest') else .06 if name in ('Seed', 'Drop') else 0.
-                value = (original[0], original[1], original[2] - depth * weight)
+                if name == 'Seed':
+                    value = (original[0], original[1] - SEED_PELVIS_DROP * weight,
+                             original[2] + SEED_PELVIS_FORWARD * weight)
+                else:
+                    depth = .10 if name in ('Pickup', 'Harvest') else .06 if name == 'Drop' else 0.
+                    value = (original[0], original[1], original[2] - depth * weight)
             else:
                 value = original
             values.append(value)
