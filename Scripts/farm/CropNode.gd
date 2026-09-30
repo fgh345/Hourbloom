@@ -10,15 +10,7 @@ func _ready() -> void:
 	add_to_group("crop_node")
 	_mesh_instance = MeshInstance3D.new()
 	add_child(_mesh_instance)
-	var farm := GameManager.session.farm
-	farm.crop_updated.connect(_on_crop_updated)
 	refresh_from_data()
-
-func _exit_tree() -> void:
-	if GameManager.session != null and GameManager.session.farm != null:
-		var farm := GameManager.session.farm
-		if farm.crop_updated.is_connected(_on_crop_updated):
-			farm.crop_updated.disconnect(_on_crop_updated)
 
 func _process(delta: float) -> void:
 	_lod_timer += delta
@@ -59,11 +51,3 @@ func _local_ground_height(point: Vector3) -> float:
 		height = (hit["position"] as Vector3).y - global_position.y
 	_height_cache[key] = height
 	return height
-
-func _on_crop_updated(updated_id: int, exists: bool) -> void:
-	if updated_id != crop_id:
-		return
-	if exists:
-		refresh_from_data()
-	else:
-		queue_free()
