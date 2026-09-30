@@ -2,8 +2,6 @@ extends CharacterBody3D
 
 @export var simulation_player_id: StringName = &"player.main"
 const OrbitCameraControllerRef = preload("res://Scripts/camera/OrbitCameraController.gd")
-const FemaleCharacterVisualScene: PackedScene = preload("res://Scenes/Actors/FemaleCharacterVisual.tscn")
-const MaleCharacterVisualScene: PackedScene = preload("res://Scenes/Actors/MaleCharacterVisual.tscn")
 @export var walk_speed: float = 5.0
 @export var sprint_speed: float = 8.0
 @export var jump_velocity: float = 4.8
@@ -115,7 +113,10 @@ func set_character_visual(character_id: String) -> bool:
 	if _basic_action_controller != null:
 		_basic_action_controller.cancel()
 
-	var visual_scene: PackedScene = FemaleCharacterVisualScene if character_id == "female" else MaleCharacterVisualScene
+	var visual_path := "res://Scenes/Actors/FemaleCharacterVisual.tscn" if character_id == "female" else "res://Scenes/Actors/MaleCharacterVisual.tscn"
+	var visual_scene := load(visual_path) as PackedScene
+	if visual_scene == null:
+		return false
 	var new_visual := visual_scene.instantiate() as Node3D
 	if new_visual == null:
 		return false
