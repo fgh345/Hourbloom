@@ -64,3 +64,7 @@ godot --path . --resolution 1152x648 --fixed-fps 60 --write-movie /tmp/hoe_gamep
 `Review/hoe_gameplay.mp4` 使用真实 Player 和内存农田，在隔离平地上录制挥锄、翻耕、移动与跳跃，不读取或写入玩家存档。专项测试覆盖触地时机、重复输入、行动锁定、切工具显隐、控制台取消、空中/飞行禁用、区域限制、实体遮挡及实际土壤服务调用，并验证四个朝向与镜头方向解耦。
 
 五个关键姿势可用 `godot --path . --script Scripts/debug/capture_hoe_review.gd -- --poses-only` 生成；`Review/hoe_reference_poses.png` 是对应姿势对照图，`Review/hoe_motion.mp4` 提供 45°、侧面、正面的连续动作录像。
+
+## 评审输出与版本管理
+
+评审脚本生成的截图、录像保留在本机，不提交到仓库；运行上面的命令可重新生成。仓库仅保留角色正面图和锄头姿势对照图作为代表性参考。文中其他评审输出路径是生成目标，并非检出后必有的文件。源模型、原始交付、制作脚本和运行资源继续版本管理。

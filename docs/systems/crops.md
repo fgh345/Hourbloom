@@ -49,3 +49,7 @@ godot --path . res://Scripts/tests/crop_visual_review.tscn -- capture watermelon
 截图写入 `Art/Crops/Review/`。本次使用 Godot 4.6 stable 完成测试、实际 OpenGL 渲染和主场景启动检查；项目目标版本仍为 4.7。现有 project.godot 引用的 godot_mcp_toolkit 未包含在仓库中，因此干净检出会报告该 Autoload 缺失，此次没有修改该配置。
 
 CPU 回归测量：5 株、现实 1 秒＝游戏 60 分钟，同一 600 帧生长更新测试，旧版本峰值向日葵约 29 ms、西瓜约 49 ms；部件复用后约 0.9 ms、2.2 ms。这是无窗口 CPU 更新耗时，不是显卡或玩家设备最终 FPS 保证。
+
+## 评审输出与版本管理
+
+评审脚本生成的截图、录像保留在本机，不提交到仓库；运行上面的命令可重新生成。仓库仅保留角色正面图和锄头姿势对照图作为代表性参考。文中其他评审输出路径是生成目标，并非检出后必有的文件。源模型、原始交付、制作脚本和运行资源继续版本管理。

@@ -30,7 +30,7 @@ Godot 检查脚本：
 
 ## 连续动态预览
 
-`Scenes/Tools/FarmerGirlReview.tscn` 提供多角度单动作预览，`capture_review.gd` 和 `render_runtime.py` 更新静态检查图。修改前侧面保存在 `Review/profile_before_side.png`。
+`Scenes/Tools/FarmerGirlReview.tscn` 提供多角度单动作预览，`capture_review.gd` 和 `render_runtime.py` 更新静态检查图。`Review/profile_before_side.png` 是此前本机记录的修改前侧面图，不属于可重新生成的当前模型输出，也不随仓库分发。
 
 `capture_jump_motion.gd` 用真实玩家和控制器在独立舞台连续演示原地跳、移动跳、奔跑跳与落地立即再跳，不加载存档。录制命令：
 
@@ -40,3 +40,7 @@ ffmpeg -i /tmp/jump_motion.avi -c:v libx264 -pix_fmt yuv420p -crf 20 -an -movfla
 ```
 
 `Review/jump_motion.mp4` 是正常速度连续演示；`motion_*.png` 是其中的起跳、空中和着陆帧，用于核对视频与实际姿势。静态图不替代连续动作验收。
+
+## 评审输出与版本管理
+
+评审脚本生成的截图、录像保留在本机，不提交到仓库；运行上面的命令可重新生成。仓库仅保留角色正面图和锄头姿势对照图作为代表性参考。文中其他评审输出路径是生成目标，并非检出后必有的文件。源模型、原始交付、制作脚本和运行资源继续版本管理。

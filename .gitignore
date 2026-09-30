@@ -51,7 +51,6 @@ addons/**/.build/
 !addons/**/README.md
 !addons/**/LICENSE*
 
-Assets/*.png
 
 # Track Godot sidecars. They preserve resource identities and import settings
 # across clean clones; generated import artifacts remain under ignored .godot/.
@@ -59,3 +58,40 @@ Assets/*.png
 **/exported
 .export-to-txt.*
 /addons/godot_mcp_toolkit
+
+# Local editor settings and machine-specific environment files
+/.vscode/
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Logs, temporary files, Python caches and Blender autosave backups
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+__pycache__/
+*.py[cod]
+*.blend[0-9]
+*.blend[0-9][0-9]
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Project export/build outputs (keep source assets and addon runtime libraries)
+/build/
+/dist/
+/exports/
+/exported/
+
+# Regeneratable art reviews. Keep one representative image per character/tool.
+/Art/Characters/FarmerGirl/renders/*
+!/Art/Characters/FarmerGirl/renders/front.png
+/Art/Characters/ForestGirl/Review/*
+!/Art/Characters/ForestGirl/Review/front.png
+/Art/Tools/Hoe/Review/*
+!/Art/Tools/Hoe/Review/hoe_reference_poses.png
+/Art/Crops/Review/*
