@@ -159,6 +159,7 @@ func verify() -> void:
 	soil_service.set_script(load("res://Scripts/farm/SoilLayerService.gd"))
 	world.add_child(soil_service)
 	check(soil_service.is_in_group("soil_layer_service"), "Production soil service is registered")
+	check(int(soil_service.get("dirt_texture_index")) == 6, "Production soil service uses dedicated tilled-soil texture slot")
 	await ticks(2)
 	tool.use_tool(player, player.position + Vector3(30, 0, 0), Vector3.UP)
 	check(player.is_hoe_action_active(), "Hoe starts with real soil service")

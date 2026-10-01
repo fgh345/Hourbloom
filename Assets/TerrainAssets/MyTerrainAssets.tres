@@ -65,10 +65,11 @@ albedo_texture = ExtResource("11_5icrm")
 normal_texture = ExtResource("11_forest_normal")
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_dqcu4"]
-name = "Plow"
+name = "Tilled Soil"
 id = 6
-albedo_texture = ExtResource("13_dqcu4")
-normal_texture = ExtResource("14_f41p3")
+albedo_texture = ExtResource("1_ebdvq")
+normal_texture = ExtResource("2_q8u4s")
+albedo_color = Color(0.76, 0.62, 0.48, 1)
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_f41p3"]
 name = "Asphalt"

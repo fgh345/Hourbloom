@@ -2,7 +2,7 @@ extends Node3D
 
 signal runtime_paint_availability_changed(is_available: bool, reason: String)
 
-@export var dirt_texture_index: int = 3 # Matches your scene file
+@export var dirt_texture_index: int = 6 # Dedicated Tilled Soil slot; keep authored Mud (3) unchanged
 @export var grass_texture_index: int = 0
 @export var plow_brush_radius: float = 1.0 # Radius in meters
 
